@@ -1,2 +1,3 @@
 # mss
-Multi-level spatial scheduling.
+
+Multi-level spatial scheduling algorithm.
