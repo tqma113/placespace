@@ -20,7 +20,7 @@ If we adopt self-increasing order index when we insert element and change positi
 
 We leave some space between two neighber elements for inserting. For example, we set the order field of first element to `2**6`(0~`2**16` also should be blank space), the second is `2**6*2` and so on.
 
-But because of Scene 2, inserting variable number of elements will have a high probability to trigger full adjustment. So we need do something else. We set the blank space in multi-level. These levels distinguish with amount of element. For example, we set the order field of first element to `2**6`, the second is `2**6*2`. But the No.`2**6+1` is `2**6*2**6*2+2**6` not `2**6*2**6+2**6`. Where is the difference? After the No.`2**6`, we set the blank space with length of `2**6*2**6`. This space is set for expandation of the previous `2**6` elements.
+But because of Scene 2, inserting variable number of elements will have a high probability to trigger full adjustment. So we need do something else. We set the blank space in multi-level. These levels distinguish with amount of element. For example, we set the order field of first element to `2**6`, the second is `2**6*2`. This is the frist level for expandation. But the No.`2**6+1` is `2**6*2**6*2+2**6` not `2**6*2**6+2**6`. Where is the difference? After the No.`2**6`, we set the blank space with length of `2**6*2**6`. This space is set for expandation of the previous `2**6` elements. This is the second level. And so on. There will be third, forth, fifith,...level with different size space for expandation.
 
 ## Action abstract
 
