@@ -48,3 +48,41 @@ But because of Scene 2, inserting variable number of elements will have a high p
 4. calculate the space of higher leveljudge whether there are enough space to place new elements and exist elements
 5. if there are enough space goto 6 else goto 4
 6. calculate the order index of new elements and exist elements with maximal sparsity
+
+> **something else we need**: the range(spaces) of current level, the amount of exist elements of current level, the range(spaces) of next level
+
+## Programmatic
+
+Variables:
+
++ ic: the amount of new elements
++ ir: the initial range(spaces)
++ l: level
++ c: the amount of elements
++ r: the range(spaces) of current level
+
+calculate:
+
+```txt
+// ic = xxx
+// ir = xxx
+
+r = ir
+c = ic
+l = 0
+
+while() {
+  if (r > c) {
+    // higher level
+    l += 1
+    // get range(spaces) of next/higher level
+    r = getNextLevelRange(r, l)
+    // get amount of exist elements of next/higher level
+    c = getNextLevelAmount(l) + ic
+  } else {
+    // success
+    calculateOrderIndex(r, ir, c)
+    break
+  }
+}
+```
