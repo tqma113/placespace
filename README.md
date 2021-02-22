@@ -18,9 +18,9 @@ Because of pagination, we can't adopt linked list. So we need adopt order index.
 
 If we adopt self-increasing order index when we insert element and change position of element it will always trigger full adjustment(reset order index of all elements). It is inefficient.
 
-We leave some space between two neighber elements for inserting. For example, we set the order field of first element to `2**6`(0~`2**16` also need space), the second is `2**6*2` and so on.
+We leave some space between two neighber elements for inserting. For example, we set the order field of first element to `2**6`(0~`2**16` also should be blank space), the second is `2**6*2` and so on.
 
-But because of Scene 2, inserting variable number of elements will have a high probability to trigger full adjustment. So we need do something else. We set the blank space in multi-level. These levels distinguish with amount of element. For example, we set the order field of first element to `2**6`(0~`2**6` also need space), the second is `2**6*2`. But the No.`2**6+1` is `2**6*2**6*2+2**6` not `2**6*2**6+2**6`. Where is the difference? After the No.`2**6`, we set the blank space with length of `2**6*2**6`. This space is set for expandation of the previous `2**6` elements.
+But because of Scene 2, inserting variable number of elements will have a high probability to trigger full adjustment. So we need do something else. We set the blank space in multi-level. These levels distinguish with amount of element. For example, we set the order field of first element to `2**6`, the second is `2**6*2`. But the No.`2**6+1` is `2**6*2**6*2+2**6` not `2**6*2**6+2**6`. Where is the difference? After the No.`2**6`, we set the blank space with length of `2**6*2**6`. This space is set for expandation of the previous `2**6` elements.
 
 ## Action abstract
 
@@ -49,17 +49,17 @@ But because of Scene 2, inserting variable number of elements will have a high p
 5. if there are enough space goto 6 else goto 4
 6. calculate the order index of new elements and exist elements with maximal sparsity
 
-> **something else we need**: the range(spaces) of current level, the amount of exist elements of current level, the range(spaces) of next level
+> **something else we need**: the range(spaces) of current level, the amount of exist elements of current level, the range of next level
 
 ## Programmatic
 
 Variables:
 
 + ic: the amount of new elements
-+ ir: the initial range(spaces)
++ ir: the initial range
 + l: level
 + c: the amount of elements
-+ r: the range(spaces) of current level
++ r: the range of current level
 
 calculate:
 
@@ -75,7 +75,7 @@ while() {
   if (r > c) {
     // higher level
     l += 1
-    // get range(spaces) of next/higher level
+    // get range of next/higher level
     r = getNextLevelRange(r, l)
     // get amount of exist elements of next/higher level
     c = getNextLevelAmount(l) + ic
