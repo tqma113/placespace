@@ -61,7 +61,7 @@ Variables:
 + c: the amount of elements
 + r: the range of current level
 
-calculate:
+Pseudocode:
 
 ```txt
 // ic = xxx
