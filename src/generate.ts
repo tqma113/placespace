@@ -1,6 +1,4 @@
-import { STEP } from './constant'
-
-import type { Range } from './range'
+import type { Range } from './space'
 
 /**
  * the result message of index
@@ -13,15 +11,6 @@ export type OutputIndex = {
   existIndex: number[]
 }
 
-export const getPerfectCountByRange = (range: Range): number => {
-
-}
-
-export const getPerfectCountByLevel = (level: number): number => {
-  if (level <= 0) return STEP
-  return getPerfectCountByLevel(level - 1) * STEP / 2
-}
-
 /**
  * generate all index message
  * 
@@ -30,6 +19,6 @@ export const getPerfectCountByLevel = (level: number): number => {
  * @param {number} count 
  * @returns {IndexResult}
  */
-export const generateIndex = (range: Range, inputRange: Range, count: number): IndexResult => {
+export const generateIndex = (range: Range, sumCount: number, inputCount: number, inputStart: number): IndexResult => {
 
 }

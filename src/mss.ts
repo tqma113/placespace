@@ -1,11 +1,11 @@
-import { getNextRange } from './range'
+import { createPlugFromRange, expandPlug, createRangeFromPlug, createRange } from './space'
 import { generateIndex } from './generate'
 import { Ok, Err } from './result'
 import { MIN, MAX } from './constant'
 
 import type { Result } from './result'
 import type { OutputIndex } from './generate'
-import type { Range } from './range'
+import type { Range, Plug } from './space'
 
 /**
  * the input info
@@ -52,8 +52,8 @@ const validateRange = (range: Range): Result<true, string> => {
   return Ok(true)
 }
 
-const validateElementCount = (range: Range, count: number) => {
-  if (count > range.len) {
+const validateElementCount = (plug: Plug, count: number) => {
+  if (count > plug.length) {
     return Err(`The count: ${count} of exist elements is invalid.`)
   }
 
@@ -79,15 +79,15 @@ export const mss = async (input: Input, getElementCount: GetElementCount): Promi
   }
 
   let level = 1
-  let range = inputRange
+  let plug = createPlugFromRange(inputRange)
   let sumCount = inputCount
 
-  while (sumCount > range.len) {
+  while (sumCount > plug.length) {
     level += 1
-    range = getNextRange(range, level)
+    plug = expandPlug(plug)
 
-    const existCount = await getElementCount(range)
-    const validateResult = validateElementCount(range, existCount)
+    const existCount = await getElementCount(createRangeFromPlug(plug))
+    const validateResult = validateElementCount(plug, existCount)
     switch(validateResult.kind) {
       case 'Err': return Err(validateResult.value)
     }
@@ -95,8 +95,11 @@ export const mss = async (input: Input, getElementCount: GetElementCount): Promi
     sumCount = existCount + inputCount
   }
 
+  const range = createRangeFromPlug(plug)
+  const inputStart = await getElementCount(createRange(range.start, inputRange.start + 1))
+
   return Ok({
-    ...generateIndex(range, inputRange, sumCount),
+    ...generateIndex(range, sumCount, inputCount, inputStart),
     range
   })
 }
