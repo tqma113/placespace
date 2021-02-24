@@ -5,6 +5,9 @@
   "repository": "https://github.com/tqma113/mss.git",
   "author": "Ma Tianqi <mtq1997@126.com>",
   "license": "MIT",
+  "scripts": {
+    "test": "jest"
+  },
   "devDependencies": {
     "@types/jest": "^26.0.20",
     "jest": "^26.6.3",

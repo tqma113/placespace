@@ -1,5 +1,5 @@
-
 import { STEP, MAX, MAX_LEVEL } from './constant'
+import { getStepFromLevel } from './util'
 
 /**
  * The Range and Plug are equivalent
@@ -205,10 +205,6 @@ export const createPlugFromFloor = (
 
 export const createPlugFromRange = (range: Range) => {
   return createPlugFromFloor(getFloor(range.start), getFloor(range.end))
-}
-
-export const getStepFromLevel = (level: number): number => {
-  return STEP**level
 }
 
 export const isFloorWithSameLevel = (start: Floor, end: Floor): boolean => {

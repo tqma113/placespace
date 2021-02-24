@@ -1,10 +1,10 @@
 import { createPlugFromRange, expandPlug, createRangeFromPlug, createRange } from './space'
-import { generateIndex } from './generate'
+import { place, getPerfectCountFromPlug } from './place'
 import { Ok, Err } from './result'
 import { MIN, MAX } from './constant'
 
 import type { Result } from './result'
-import type { OutputIndex } from './generate'
+import type { PlaceIndex } from './place'
 import type { Range, Plug } from './space'
 
 /**
@@ -23,7 +23,7 @@ export type Input = {
  * 
  * @field {Range} range: the affected range of this reconcile
  */
-export type Output = OutputIndex & {
+export type PlaceResult = PlaceIndex & {
   range: Range
 }
 
@@ -66,7 +66,7 @@ const validateElementCount = (plug: Plug, count: number) => {
  * @param {Input} input 
  * @param {GetElementAmount} getElementAmount 
  */
-export const mss = async (input: Input, getElementCount: GetElementCount): Promise<Result<Output, string>> => {
+export const mss = async (input: Input, getElementCount: GetElementCount): Promise<Result<PlaceResult, string>> => {
   const { inputCount, inputRange } = input
 
   const validateResult = validateRange(inputRange)
@@ -82,7 +82,7 @@ export const mss = async (input: Input, getElementCount: GetElementCount): Promi
   let plug = createPlugFromRange(inputRange)
   let sumCount = inputCount
 
-  while (sumCount > plug.length) {
+  while (sumCount > getPerfectCountFromPlug(plug)) {
     level += 1
     plug = expandPlug(plug)
 
@@ -99,7 +99,7 @@ export const mss = async (input: Input, getElementCount: GetElementCount): Promi
   const inputStart = await getElementCount(createRange(range.start, inputRange.start + 1))
 
   return Ok({
-    ...generateIndex(range, sumCount, inputCount, inputStart),
+    ...place(plug, sumCount, inputCount, inputStart),
     range
   })
 }
