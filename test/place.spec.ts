@@ -1,4 +1,10 @@
-import { getIndexs } from '../src/place'
+import {
+  getIndexs,
+  getPerfectCountFromPlug,
+  getPerfectCountByLevel,
+} from '../src/place'
+
+import { createRange, createPlugFromRange } from '../src/space'
 
 describe('place', () => {
   describe('getIndexs', () => {
@@ -122,5 +128,68 @@ describe('place', () => {
 
   describe('place', () => {
     it.todo('test')
+  })
+
+  describe('getBaseIndexs', () => {
+    it.todo('test')
+  })
+
+  describe('getPerfectCountFromPlug', () => {
+    describe('level is 0', () => {
+      it('isLevelMax is false', () => {
+        const foo = createPlugFromRange(createRange(0, 1))
+  
+        expect(getPerfectCountFromPlug(foo)).toBe(2)
+      })
+
+      it('isLevelMax is true', () => {
+        const foo = createPlugFromRange(createRange(0, 7))
+  
+        expect(getPerfectCountFromPlug(foo)).toBe(4 ** 0 * 8)
+      })
+    })
+
+    describe('level is 1', () => {
+  
+      it('isLevelMax is false', () => {
+        const foo = createPlugFromRange(createRange(0, 15))
+  
+        expect(getPerfectCountFromPlug(foo)).toBe(4 ** 1 * 2 * 2)
+      })
+      it('isLevelMax is true', () => {
+        const foo = createPlugFromRange(createRange(0, 63))
+  
+        expect(getPerfectCountFromPlug(foo)).toBe(4 ** 1 * 8)
+      })
+    })
+
+    describe('level is 2', () => {
+      it('isLevelMax is false', () => {
+        const foo = createPlugFromRange(createRange(0, 127))
+  
+        expect(getPerfectCountFromPlug(foo)).toBe(4 ** 2 * 2 * 2)
+      })
+      it('isLevelMax is true', () => {
+        const foo = createPlugFromRange(createRange(0, 512))
+  
+        expect(getPerfectCountFromPlug(foo)).toBe(4 ** 2 * 8)
+      })
+    })
+  })
+
+  describe('getPerfectCountByLevel', () => {
+    it('work', () => {
+      expect(getPerfectCountByLevel(0)).toBe(4 ** 1)
+      expect(getPerfectCountByLevel(1)).toBe(4 ** 2)
+      expect(getPerfectCountByLevel(2)).toBe(4 ** 3)
+      expect(getPerfectCountByLevel(3)).toBe(4 ** 4)
+      expect(getPerfectCountByLevel(4)).toBe(4 ** 5)
+      expect(getPerfectCountByLevel(5)).toBe(4 ** 6)
+      expect(getPerfectCountByLevel(6)).toBe(4 ** 7)
+      expect(getPerfectCountByLevel(7)).toBe(4 ** 8)
+      expect(getPerfectCountByLevel(8)).toBe(4 ** 9)
+      expect(getPerfectCountByLevel(9)).toBe(4 ** 10)
+      expect(getPerfectCountByLevel(10)).toBe(4 ** 11)
+    })
   })
 })
