@@ -54,12 +54,12 @@ export type Indexs = number[]
 export const createIndexs = (index: number = 0): Indexs => {
   let indexs: Indexs = []
 
-  while (index > STEP) {
-    indexs.push(index % STEP)
-    index = Math.ceil(index / STEP)
+  while (index >= STEP) {
+    indexs.unshift(Math.ceil(index / STEP))
+    index = index % STEP
   }
 
-  if (indexs.length > 0 && index !== 0) indexs.push(index)
+  if (indexs.length > 0 || index !== 0) indexs.unshift(index)
 
   return indexs
 }
@@ -160,14 +160,10 @@ const createFloorBase = (index: number, indexs: Indexs): Floor => {
   }
 }
 export const createFloor = (index: number = 0): Floor => {
-  let indexs = createIndexs(index)
-
-  return createFloorBase(index, indexs)
+  return createFloorBase(index, createIndexs(index))
 }
 export const createFloorFromIndexs = (indexs: Indexs = []): Floor => {
-  let index = getIndexFromIndexs(indexs)
-
-  return createFloorBase(index, indexs)
+  return createFloorBase(getIndexFromIndexs(indexs), indexs)
 }
 
 export const cloneFloor = (floor: Floor): Floor => {
@@ -253,9 +249,9 @@ export const createPlugFromFloor = (start: Floor, end: Floor): Plug => {
   start = cloneFloor(start)
   end = cloneFloor(end)
 
-  let baseStartLevel: number = 0
+  let baseStartLevel: number = Math.max(start.length, end.length)
 
-  for (let level = start.length - 1; level >= 0; level--) {
+  for (let level = baseStartLevel - 1; level >= 0; level--) {
     if (start.indexs[level] !== end.indexs[level]) {
       break
     }
