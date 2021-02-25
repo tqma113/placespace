@@ -1,4 +1,10 @@
-import { createPlugFromRange, expandPlug, createRangeFromPlug, createRange } from './space'
+import {
+  createPlugFromRange,
+  expand,
+  createRangeFromPlug,
+  createRange,
+  optimize,
+} from './space'
 import { place, getPerfectCountFromPlug } from './place'
 import { Ok, Err } from './result'
 import { MIN, MAX } from './constant'
@@ -9,10 +15,10 @@ import type { Range, Plug } from './space'
 
 /**
  * the input info
- * 
+ *
  * @field {number} inputCount: the amount of input elements
  * @field {Range} inputRange: the range of input position
-*/
+ */
 export type Input = {
   inputCount: number
   inputRange: Range
@@ -20,7 +26,7 @@ export type Input = {
 
 /**
  * the result message
- * 
+ *
  * @field {Range} range: the affected range of this reconcile
  */
 export type PlaceResult = PlaceIndex & {
@@ -29,7 +35,7 @@ export type PlaceResult = PlaceIndex & {
 
 /**
  * get amount of exist elements in determinate range
- * 
+ *
  * @param {Range} range
  * @returns {Promise<number>}
  */
@@ -62,44 +68,51 @@ const validateElementCount = (plug: Plug, count: number) => {
 
 /**
  * mss
- * 
- * @param {Input} input 
- * @param {GetElementAmount} getElementAmount 
+ *
+ * 1.
+ *
+ * @param {Input} input
+ * @param {GetElementAmount} getElementAmount
  */
-export const mss = async (input: Input, getElementCount: GetElementCount): Promise<Result<PlaceResult, string>> => {
+export const mss = async (
+  input: Input,
+  getElementCount: GetElementCount
+): Promise<Result<PlaceResult, string>> => {
   const { inputCount, inputRange } = input
 
   const validateResult = validateRange(inputRange)
-  switch(validateResult.kind) {
-    case 'Err': return Err(validateResult.value)
+  switch (validateResult.kind) {
+    case 'Err':
+      return Err(validateResult.value)
   }
 
   if ((await getElementCount(inputRange)) > 0) {
     return Err(`The input range: ${inputRange} is not empty.`)
   }
 
-  let level = 1
-  let plug = createPlugFromRange(inputRange)
+  let plug = optimize(createPlugFromRange(inputRange))
   let sumCount = inputCount
 
   while (sumCount > getPerfectCountFromPlug(plug)) {
-    level += 1
-    plug = expandPlug(plug)
+    plug = expand(plug)
 
     const existCount = await getElementCount(createRangeFromPlug(plug))
     const validateResult = validateElementCount(plug, existCount)
-    switch(validateResult.kind) {
-      case 'Err': return Err(validateResult.value)
+    switch (validateResult.kind) {
+      case 'Err':
+        return Err(validateResult.value)
     }
 
     sumCount = existCount + inputCount
   }
 
   const range = createRangeFromPlug(plug)
-  const inputStart = await getElementCount(createRange(range.start, inputRange.start + 1))
+  const inputStart = await getElementCount(
+    createRange(range.start, inputRange.start + 1)
+  )
 
   return Ok({
     ...place(plug, sumCount, inputCount, inputStart),
-    range
+    range,
   })
 }

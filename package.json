@@ -6,12 +6,17 @@
   "author": "Ma Tianqi <mtq1997@126.com>",
   "license": "MIT",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "tsc",
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "@types/jest": "^26.0.20",
     "jest": "^26.6.3",
     "ts-jest": "^26.5.1",
     "typescript": "^4.1.5"
+  },
+  "dependencies": {
+    "prettier": "^2.2.1"
   }
 }

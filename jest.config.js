@@ -20,9 +20,7 @@ module.exports = {
       statements: 95,
     },
   },
-  collectCoverageFrom: [
-    'src/*.{js,ts}'
-  ],
+  collectCoverageFrom: ['src/*.{js,ts}'],
   preset: 'ts-jest',
   testMatch: null,
 }

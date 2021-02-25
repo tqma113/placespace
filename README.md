@@ -6,11 +6,11 @@ Multi-level spatial scheduling algorithm.
 
 > SQL Database
 
-+ a order list and have a field for order.
-+ list supports inserting a or more element to any position.
-+ list supports removing a or more element to any position.
-+ list supports changing position of any one element exist to any position.
-+ support pagination.
+- a order list and have a field for order.
+- list supports inserting a or more element to any position.
+- list supports removing a or more element to any position.
+- list supports changing position of any one element exist to any position.
+- support pagination.
 
 ## Idea
 
@@ -26,17 +26,17 @@ But because of Scene 2, inserting variable number of elements will have a high p
 
 1. add new elements to any position
 
-    **input**: new elements, order index of previous element, order index of next element
+   **input**: new elements, order index of previous element, order index of next element
 
-    **output**: order indexs of new elements, if need full adjustment, range of full adjustment
+   **output**: order indexs of new elements, if need full adjustment, range of full adjustment
 
 2. remove elements
 
-    Don't need calculate
+   Don't need calculate
 
 3. move one element to any position
 
-    like add new elements
+   like add new elements
 
 ## Add new elements to any position
 
@@ -55,11 +55,11 @@ But because of Scene 2, inserting variable number of elements will have a high p
 
 Variables:
 
-+ ic: the amount of new elements
-+ ir: the initial range
-+ l: level
-+ c: the amount of elements
-+ r: the range of current level
+- ic: the amount of new elements
+- ir: the initial range
+- l: level
+- c: the amount of elements
+- r: the range of current level
 
 Pseudocode:
 
@@ -89,5 +89,4 @@ while() {
 
 ## TODO
 
-* expand forward
-
+- expand forward
