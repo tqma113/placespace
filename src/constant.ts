@@ -11,7 +11,3 @@ export const MAX = 2 ** 32 - 1
 
 export const MAX_LEVEL = 11 // Math.cell(log(STEP, MAX))
 export const MAX_STEP = 2 ** 30
-
-export function log(base: number, val: number) {
-  return Math.log(val) / Math.log(base)
-}

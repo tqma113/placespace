@@ -1,9 +1,9 @@
 import {
-  createPlugFromRange,
   expand,
-  createRangeFromPlug,
-  createRange,
   optimize,
+  createRange,
+  createPlugFromRange,
+  createRangeFromPlug,
 } from './space'
 import { place, getPerfectCountFromPlug } from './place'
 import { Ok, Err } from './result'
