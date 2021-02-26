@@ -7,7 +7,7 @@ describe('mss', () => {
     const range = createRange(2, 4)
     const input = {
       inputRange: range,
-      inputCount: 3
+      inputCount: 3,
     }
     const getElementCount: GetElementCount = (range) => {
       if (range.start === 0 && range.end === 3) {

@@ -96,7 +96,7 @@ export const mss = async (
     case 'Err':
       return Err(validateResult0.value)
   }
-  let sumCount = inputCount + await getElementCount(createRangeFromPlug(plug))
+  let sumCount = inputCount + (await getElementCount(createRangeFromPlug(plug)))
 
   while (sumCount > getPerfectCountFromPlug(plug)) {
     plug = expand(plug)
