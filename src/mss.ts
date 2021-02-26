@@ -69,8 +69,6 @@ const validateElementCount = (plug: Plug, count: number) => {
 /**
  * mss
  *
- * 1.
- *
  * @param {Input} input
  * @param {GetElementAmount} getElementAmount
  */
