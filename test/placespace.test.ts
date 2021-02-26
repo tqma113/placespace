@@ -1,8 +1,8 @@
-import { mss, createRange } from '../src'
+import { placespace, createRange } from '../src'
 import { shouldIndexsEqual } from './util'
 import type { GetElementCount } from '../src'
 
-describe('mss', () => {
+describe('placespace', () => {
   it('work', async () => {
     const range = createRange(2, 4)
     const input = {
@@ -18,7 +18,7 @@ describe('mss', () => {
         return Promise.resolve(4)
       }
     }
-    const result = await mss(input, getElementCount)
+    const result = await placespace(input, getElementCount)
     switch (result.kind) {
       case 'Err':
         expect(result.value).toBe('Ok')

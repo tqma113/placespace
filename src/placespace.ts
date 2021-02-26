@@ -67,12 +67,12 @@ const validateElementCount = (plug: Plug, count: number) => {
 }
 
 /**
- * mss
+ * placespace
  *
  * @param {Input} input
  * @param {GetElementAmount} getElementAmount
  */
-export const mss = async (
+export const placespace = async (
   input: Input,
   getElementCount: GetElementCount
 ): Promise<Result<PlaceResult, string>> => {

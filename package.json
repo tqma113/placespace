@@ -1,9 +1,9 @@
 {
-  "name": "mss",
+  "name": "placespace",
   "version": "0.1.0",
   "main": "./lib/index.js",
   "typings": "./lib/index.d.ts",
-  "repository": "https://github.com/tqma113/mss.git",
+  "repository": "https://github.com/tqma113/placespace.git",
   "author": "Ma Tianqi <mtq1997@126.com>",
   "license": "MIT",
   "files": [
@@ -11,9 +11,9 @@
   ],
   "scripts": {
     "test": "jest",
-    "test:mss": "jest mss.test.ts",
-    "test:space": "jest space",
-    "test:place": "jest place",
+    "test:placespace": "jest placespace.test.ts",
+    "test:space": "jest space.spec.ts",
+    "test:place": "jest place.spec.ts",
     "build": "tsc",
     "format": "prettier --write ."
   },
