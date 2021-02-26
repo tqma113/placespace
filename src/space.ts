@@ -20,20 +20,19 @@ export type Range = {
   readonly end: number
 }
 export const createRange = (start: number, end: number): Range => {
-  const pos = start
   const len = end - start + 1
   return {
     get pos() {
-      return pos
+      return start
     },
     get len() {
       return len
     },
     get start() {
-      return pos
+      return start
     },
     get end() {
-      return len - 1
+      return end
     },
   }
 }
@@ -55,20 +54,20 @@ export const createIndexs = (index: number = 0): Indexs => {
   let indexs: Indexs = []
 
   while (index >= STEP) {
-    indexs.unshift(Math.ceil(index / STEP))
-    index = index % STEP
+    indexs.push(index % STEP)
+    index = Math.floor(index / STEP)
   }
 
-  if (indexs.length > 0 || index !== 0) indexs.unshift(index)
+  if (indexs.length > 0 || index !== 0) indexs.push(index)
 
   return indexs
 }
 
 export const getIndexFromIndexs = (indexs: Indexs): number => {
-  let index = 0
+  let index = indexs[indexs.length - 1] || 0
 
-  for (let i = indexs.length - 1; i >= 0; i--) {
-    index += getStepFromLevel(i) * indexs[i]
+  for (let i = indexs.length - 2; i >= 0; i--) {
+    index = index * STEP + (indexs[i] || 0)
   }
 
   return index
@@ -252,13 +251,21 @@ export const createPlugFromFloor = (start: Floor, end: Floor): Plug => {
   let baseStartLevel: number = Math.max(start.length, end.length)
 
   for (let level = baseStartLevel - 1; level >= 0; level--) {
-    if (start.indexs[level] !== end.indexs[level]) {
+    const startIndex = start.indexs[level]
+    const endIndex = end.indexs[level]
+    // 0 and undefined is equivalent
+    if (
+      ((startIndex === undefined || startIndex === 0) &&
+        (endIndex === undefined || endIndex === 0)) ||
+      startIndex === endIndex
+    ) {
+      baseStartLevel = level
+      base.set(level, start.indexs[level])
+      start.remove(level)
+      end.remove(level)
+    } else {
       break
     }
-    baseStartLevel = level
-    base.set(level, start.indexs[level])
-    start.remove(level)
-    end.remove(level)
   }
 
   return createPlug(base, start, end, baseStartLevel)
@@ -308,6 +315,7 @@ export const optimize = (plug: Plug): Plug => {
     const lowStart = plug.start.get(plug.baseStartLevel - 1)
     const lowEnd = plug.end.get(plug.baseStartLevel - 1)
     if (isInCacheBlock(lowStart, lowEnd)) {
+      // in cache block expand to max of cache block
       const base = cloneFloor(plug.base)
       const start = createFloorFromIndexs()
       const end = createFloorFromIndexs(
@@ -317,6 +325,7 @@ export const optimize = (plug: Plug): Plug => {
       end.set(plug.baseStartLevel - 1, lowEnd)
       return createPlug(base, start, end, plug.baseStartLevel)
     } else {
+      // else expand to max of level
       return expand(plug)
     }
   }

@@ -138,27 +138,27 @@ describe('place', () => {
     describe('level is 0', () => {
       it('isLevelMax is false', () => {
         const foo = createPlugFromRange(createRange(0, 1))
-  
-        expect(getPerfectCountFromPlug(foo)).toBe(2)
+
+        expect(getPerfectCountFromPlug(foo)).toBe(4 ** 0 * 2)
       })
 
       it('isLevelMax is true', () => {
         const foo = createPlugFromRange(createRange(0, 7))
-  
+
         expect(getPerfectCountFromPlug(foo)).toBe(4 ** 0 * 8)
       })
     })
 
     describe('level is 1', () => {
-  
       it('isLevelMax is false', () => {
         const foo = createPlugFromRange(createRange(0, 15))
-  
-        expect(getPerfectCountFromPlug(foo)).toBe(4 ** 1 * 2 * 2)
+
+        expect(getPerfectCountFromPlug(foo)).toBe(4 ** 0 * 8 * 2)
       })
+
       it('isLevelMax is true', () => {
         const foo = createPlugFromRange(createRange(0, 63))
-  
+
         expect(getPerfectCountFromPlug(foo)).toBe(4 ** 1 * 8)
       })
     })
@@ -166,12 +166,13 @@ describe('place', () => {
     describe('level is 2', () => {
       it('isLevelMax is false', () => {
         const foo = createPlugFromRange(createRange(0, 127))
-  
-        expect(getPerfectCountFromPlug(foo)).toBe(4 ** 2 * 2 * 2)
+
+        expect(getPerfectCountFromPlug(foo)).toBe(4 ** 1 * 8 * 2)
       })
+
       it('isLevelMax is true', () => {
         const foo = createPlugFromRange(createRange(0, 512))
-  
+
         expect(getPerfectCountFromPlug(foo)).toBe(4 ** 2 * 8)
       })
     })

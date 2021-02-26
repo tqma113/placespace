@@ -85,16 +85,17 @@ export const getBaseIndexs = (step: number): Indexs => {
 }
 
 export const getPerfectCountFromPlug = (plug: Plug): number => {
+  console.log(plug.isLevelMax, plug.baseStartLevel)
   if (plug.isLevelMax) {
     // when range is not in a block with level 0
     // the lower level adopt perfect way
     // the highest level adopt max way
-    return getPerfectCountByLevel(plug.baseStartLevel - 2) * STEP
+    return getPerfectCountByLevel(plug.baseStartLevel - 1) * STEP
   } else {
+    if (plug.baseStartLevel <= 1) return plug.length
     // when range is in a block with level 0
     // the highest level adopt max way
-    const step = plug.baseStartLevel < 2 ? 1 : STEP
-    return getPerfectCountByLevel(plug.baseStartLevel - 3) * step * 2
+    return getPerfectCountByLevel(plug.baseStartLevel - 2) * STEP * 2
   }
 }
 
@@ -109,5 +110,5 @@ export const getPerfectCountFromPlug = (plug: Plug): number => {
  */
 export const getPerfectCountByLevel = (level: number): number => {
   if (level < 0) return 1
-  return (STEP / 2) ** (level + 1)
+  return (STEP / 2) ** level
 }
