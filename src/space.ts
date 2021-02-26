@@ -319,7 +319,7 @@ export const optimize = (plug: Plug): Plug => {
       const base = cloneFloor(plug.base)
       const start = createFloorFromIndexs()
       const end = createFloorFromIndexs(
-        Array(plug.baseStartLevel - 2).fill(STEP - 1)
+        Array(plug.baseStartLevel - 1).fill(STEP - 1)
       )
       start.set(plug.baseStartLevel - 1, lowStart)
       end.set(plug.baseStartLevel - 1, lowEnd)

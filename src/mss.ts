@@ -91,7 +91,14 @@ export const mss = async (
   }
 
   let plug = optimize(createPlugFromRange(inputRange))
-  let sumCount = inputCount
+
+  const existCount = await getElementCount(createRangeFromPlug(plug))
+  const validateResult0 = validateElementCount(plug, existCount)
+  switch (validateResult0.kind) {
+    case 'Err':
+      return Err(validateResult0.value)
+  }
+  let sumCount = inputCount + await getElementCount(createRangeFromPlug(plug))
 
   while (sumCount > getPerfectCountFromPlug(plug)) {
     plug = expand(plug)

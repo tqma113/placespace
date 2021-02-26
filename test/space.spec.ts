@@ -13,15 +13,7 @@ import {
   optimize,
   getIndexOfFloor,
 } from '../src/space'
-
-import type { Indexs } from '../src/space'
-
-const shouldIndexsEqual = (a: Indexs, b: Indexs) => {
-  b.forEach((value, index) => {
-    if (value === 0) return
-    expect(a[index]).toBe(value)
-  })
-}
+import { shouldIndexsEqual } from './utils'
 
 describe('space', () => {
   describe('Range', () => {
@@ -648,7 +640,7 @@ describe('space', () => {
         it('simple', () => {
           const fooRange = createRange(0, 8)
           const foo = createPlugFromRange(fooRange)
-  
+
           shouldIndexsEqual(foo.base.indexs, [])
           shouldIndexsEqual(foo.start.indexs, [])
           shouldIndexsEqual(foo.end.indexs, [0, 1])
@@ -662,7 +654,7 @@ describe('space', () => {
         it('level is 0', () => {
           const fooRange = createRange(0, 7)
           const foo = createPlugFromRange(fooRange)
-  
+
           shouldIndexsEqual(foo.base.indexs, [])
           shouldIndexsEqual(foo.start.indexs, [])
           shouldIndexsEqual(foo.end.indexs, [7])
@@ -676,7 +668,7 @@ describe('space', () => {
         it('level is 1', () => {
           const fooRange = createRange(0, 63)
           const foo = createPlugFromRange(fooRange)
-  
+
           shouldIndexsEqual(foo.base.indexs, [])
           shouldIndexsEqual(foo.start.indexs, [])
           shouldIndexsEqual(foo.end.indexs, [7, 7])
@@ -690,7 +682,7 @@ describe('space', () => {
         it('level is 2', () => {
           const fooRange = createRange(0, 511)
           const foo = createPlugFromRange(fooRange)
-  
+
           shouldIndexsEqual(foo.base.indexs, [])
           shouldIndexsEqual(foo.start.indexs, [])
           shouldIndexsEqual(foo.end.indexs, [7, 7, 7])
@@ -704,7 +696,7 @@ describe('space', () => {
         it('level is 3', () => {
           const fooRange = createRange(0, 4095)
           const foo = createPlugFromRange(fooRange)
-  
+
           shouldIndexsEqual(foo.base.indexs, [])
           shouldIndexsEqual(foo.start.indexs, [])
           shouldIndexsEqual(foo.end.indexs, [7, 7, 7, 7])
@@ -734,7 +726,7 @@ describe('space', () => {
         it('level is 2', () => {
           const fooRange = createRange(448, 511)
           const foo = createPlugFromRange(fooRange)
-  
+
           shouldIndexsEqual(foo.base.indexs, [0, 0, 7])
           shouldIndexsEqual(foo.start.indexs, [])
           shouldIndexsEqual(foo.end.indexs, [7, 7])
@@ -748,7 +740,7 @@ describe('space', () => {
         it('level is 3', () => {
           const fooRange = createRange(3584, 4095)
           const foo = createPlugFromRange(fooRange)
-  
+
           shouldIndexsEqual(foo.base.indexs, [0, 0, 0, 7])
           shouldIndexsEqual(foo.start.indexs, [])
           shouldIndexsEqual(foo.end.indexs, [7, 7, 7])
@@ -762,38 +754,352 @@ describe('space', () => {
     })
 
     describe('expand', () => {
-      it('in level block', () => {
-        const fooRange = createRange(0, 3)
-        const foo = createPlugFromRange(fooRange)
-        const bar = expand(foo)
-        const barBase = createFloorFromIndexs([0])
-        const barStart = createFloorFromIndexs([0])
-        const barEnd = createFloorFromIndexs([7])
+      describe('without base', () => {
+        describe('level is 0', () => {
+          it('in level block', () => {
+            const fooRange = createRange(0, 1)
+            const foo = createPlugFromRange(fooRange)
+            const bar = expand(foo)
+            const barBase = createFloorFromIndexs([0])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([7])
 
-        shouldIndexsEqual(bar.base.indexs, barBase.indexs)
-        shouldIndexsEqual(bar.start.indexs, barStart.indexs)
-        shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
-        expect(bar.startIndex).toBe(0)
-        expect(bar.endIndex).toBe(7)
-        expect(bar.length).toBe(8)
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(0)
+            expect(bar.endIndex).toBe(7)
+            expect(bar.length).toBe(8)
+          })
+
+          it('in cache block', () => {
+            const fooRange = createRange(0, 7)
+            const foo = createPlugFromRange(fooRange)
+            const bar = expand(foo)
+            const barBase = createFloorFromIndexs([0])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([7, 1])
+
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(0)
+            expect(bar.endIndex).toBe(15)
+            expect(bar.length).toBe(16)
+          })
+        })
+
+        describe('level is 1', () => {
+          it('in level block', () => {
+            const fooRange = createRange(0, 15)
+            const foo = createPlugFromRange(fooRange)
+            const bar = expand(foo)
+            const barBase = createFloorFromIndexs([0])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([7, 7])
+
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(0)
+            expect(bar.endIndex).toBe(63)
+            expect(bar.length).toBe(64)
+          })
+
+          it('in cache block', () => {
+            const fooRange = createRange(0, 63)
+            const foo = createPlugFromRange(fooRange)
+            const bar = expand(foo)
+            const barBase = createFloorFromIndexs([0])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([7, 7, 1])
+
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(0)
+            expect(bar.endIndex).toBe(127)
+            expect(bar.length).toBe(128)
+          })
+        })
+
+        describe('level is 2', () => {
+          it('in level block', () => {
+            const fooRange = createRange(0, 127)
+            const foo = createPlugFromRange(fooRange)
+            const bar = expand(foo)
+            const barBase = createFloorFromIndexs([0])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([7, 7, 7])
+
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(0)
+            expect(bar.endIndex).toBe(511)
+            expect(bar.length).toBe(512)
+          })
+
+          it('in cache block', () => {
+            const fooRange = createRange(0, 511)
+            const foo = createPlugFromRange(fooRange)
+            const bar = expand(foo)
+            const barBase = createFloorFromIndexs([0])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([7, 7, 7, 1])
+
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(0)
+            expect(bar.endIndex).toBe(1023)
+            expect(bar.length).toBe(1024)
+          })
+        })
+      })
+
+      describe('with base', () => {
+        describe('level is 0', () => {
+          it('in level block', () => {
+            const fooRange = createRange(8, 9)
+            const foo = createPlugFromRange(fooRange)
+            const bar = expand(foo)
+            const barBase = createFloorFromIndexs([0, 1])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([7])
+
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(8)
+            expect(bar.endIndex).toBe(15)
+            expect(bar.length).toBe(8)
+          })
+
+          it('in cache block', () => {
+            const fooRange = createRange(64, 71)
+            const foo = createPlugFromRange(fooRange)
+            const bar = expand(foo)
+            const barBase = createFloorFromIndexs([0, 0, 1])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([7, 1])
+
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(64)
+            expect(bar.endIndex).toBe(79)
+            expect(bar.length).toBe(16)
+          })
+        })
+
+        describe('level is 1', () => {
+          it('in level block', () => {
+            const fooRange = createRange(64, 79)
+            const foo = createPlugFromRange(fooRange)
+            const bar = expand(foo)
+            const barBase = createFloorFromIndexs([0, 0, 1])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([7, 7])
+
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(64)
+            expect(bar.endIndex).toBe(127)
+            expect(bar.length).toBe(64)
+          })
+
+          it('in cache block', () => {
+            const fooRange = createRange(512, 63 + 512)
+            const foo = createPlugFromRange(fooRange)
+            const bar = expand(foo)
+            const barBase = createFloorFromIndexs([0, 0, 0, 1])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([7, 7, 1])
+
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(512)
+            expect(bar.endIndex).toBe(127 + 512)
+            expect(bar.length).toBe(128)
+          })
+        })
+
+        describe('level is 2', () => {
+          it('in level block', () => {
+            const fooRange = createRange(512, 512 + 64 * 2 - 1)
+            const foo = createPlugFromRange(fooRange)
+            const bar = expand(foo)
+            const barBase = createFloorFromIndexs([0, 0, 0, 1])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([7, 7, 7])
+
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(512)
+            expect(bar.endIndex).toBe(512 * 2 - 1)
+            expect(bar.length).toBe(512)
+          })
+
+          it('in cache block', () => {
+            const fooRange = createRange(4096, 4096 + 511)
+            const foo = createPlugFromRange(fooRange)
+            const bar = expand(foo)
+            const barBase = createFloorFromIndexs([0, 0, 0, 0, 1])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([7, 7, 7, 1])
+
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(4096)
+            expect(bar.endIndex).toBe(4096 + 1023)
+            expect(bar.length).toBe(1024)
+          })
+        })
       })
     })
 
     describe('optimize', () => {
-      it('in level block', () => {
-        const fooRange = createRange(0, 3)
-        const foo = createPlugFromRange(fooRange)
-        const bar = optimize(foo)
-        const barBase = createFloorFromIndexs([0])
-        const barStart = createFloorFromIndexs([0])
-        const barEnd = createFloorFromIndexs([7])
+      describe('without base', () => {
+        describe('level is 0', () => {
+          it('in cache block', () => {
+            const fooRange = createRange(0, 0)
+            const foo = createPlugFromRange(fooRange)
+            const bar = optimize(foo)
+            const barBase = createFloorFromIndexs([0])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([1])
 
-        shouldIndexsEqual(bar.base.indexs, barBase.indexs)
-        shouldIndexsEqual(bar.start.indexs, barStart.indexs)
-        shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
-        expect(bar.startIndex).toBe(0)
-        expect(bar.endIndex).toBe(7)
-        expect(bar.length).toBe(8)
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(0)
+            expect(bar.endIndex).toBe(1)
+            expect(bar.length).toBe(2)
+          })
+
+          it('in level block', () => {
+            const fooRange = createRange(0, 3)
+            const foo = createPlugFromRange(fooRange)
+            const bar = optimize(foo)
+            const barBase = createFloorFromIndexs([0])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([7])
+
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(0)
+            expect(bar.endIndex).toBe(7)
+            expect(bar.length).toBe(8)
+          })
+        })
+
+        describe('level is 1', () => {
+          it('in cache block', () => {
+            const fooRange = createRange(0, 12)
+            const foo = createPlugFromRange(fooRange)
+            const bar = optimize(foo)
+            const barBase = createFloorFromIndexs([0])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([7, 1])
+
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(0)
+            expect(bar.endIndex).toBe(15)
+            expect(bar.length).toBe(16)
+          })
+
+          it('in level block', () => {
+            const fooRange = createRange(0, 30)
+            const foo = createPlugFromRange(fooRange)
+            const bar = optimize(foo)
+            const barBase = createFloorFromIndexs([0])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([7, 7])
+
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(0)
+            expect(bar.endIndex).toBe(63)
+            expect(bar.length).toBe(64)
+          })
+        })
+
+        describe('level is 2', () => {
+          it('in cache block', () => {
+            const fooRange = createRange(0, 80)
+            const foo = createPlugFromRange(fooRange)
+            const bar = optimize(foo)
+            const barBase = createFloorFromIndexs([0])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([7, 7, 1])
+
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(0)
+            expect(bar.endIndex).toBe(127)
+            expect(bar.length).toBe(128)
+          })
+
+          it('in level block', () => {
+            const fooRange = createRange(0, 130)
+            const foo = createPlugFromRange(fooRange)
+            const bar = optimize(foo)
+            const barBase = createFloorFromIndexs([0])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([7, 7, 7])
+
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(0)
+            expect(bar.endIndex).toBe(511)
+            expect(bar.length).toBe(512)
+          })
+        })
+
+        describe('level is 3', () => {
+          it('in cache block', () => {
+            const fooRange = createRange(0, 600)
+            const foo = createPlugFromRange(fooRange)
+            const bar = optimize(foo)
+            const barBase = createFloorFromIndexs([0])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([7, 7, 7, 1])
+
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(0)
+            expect(bar.endIndex).toBe(1023)
+            expect(bar.length).toBe(1024)
+          })
+
+          it('in level block', () => {
+            const fooRange = createRange(0, 2000)
+            const foo = createPlugFromRange(fooRange)
+            const bar = optimize(foo)
+            const barBase = createFloorFromIndexs([0])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([7, 7, 7, 7])
+
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(0)
+            expect(bar.endIndex).toBe(4095)
+            expect(bar.length).toBe(4096)
+          })
+        })
       })
     })
   })

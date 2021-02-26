@@ -23,28 +23,15 @@ export const place = (
   let inputIndexs: Indexs = []
   let existIndexs: Indexs = []
 
-  let indexs: Indexs = []
-  if (plug.isLevelMax) {
-    indexs = getIndexs(plug.baseStartLevel)
-  } else {
-    const step = getStepFromLevel(plug.baseStartLevel - 1)
-    const levelIndex = getIndexs(plug.baseStartLevel - 1)
-    const lowStart = plug.start.get(plug.baseStartLevel - 1)
-    const lowEnd = plug.end.get(plug.baseStartLevel - 1)
-    const startPrefix = lowStart * step
-    const endPrefix = lowEnd * step
-    indexs = [
-      ...levelIndex.map((i) => i + startPrefix),
-      ...levelIndex.map((i) => i + endPrefix),
-    ]
-  }
+  const indexs: Indexs = getIndexs(plug)
+
   let inputIndex = 0
   for (let i = 0; i < indexs.length, i < sumCount; i++) {
-    if (i < inputStart || inputIndex >= inputCount - 1) {
+    if (i < inputStart || inputIndex >= inputCount) {
+      existIndexs.push(indexs[i])
+    } else {
       inputIndexs.push(indexs[i])
       inputIndex++
-    } else {
-      existIndexs.push(indexs[i])
     }
   }
 
@@ -54,7 +41,44 @@ export const place = (
   }
 }
 
-export const getIndexs = (level: number): Indexs => {
+export const getIndexs = (plug: Plug): Indexs => {
+  let indexs: Indexs = []
+
+  if (plug.isLevelMax) {
+    const perfectIndexs = getPerfectIndexs(plug.baseStartLevel - 2)
+    const step = getStepFromLevel(plug.baseStartLevel - 1)
+    for (let i = 0; i < STEP; i++) {
+      const prefix = step * i
+      indexs = indexs.concat(perfectIndexs.map((i) => i + prefix))
+    }
+  } else {
+    const step = getStepFromLevel(plug.baseStartLevel - 2)
+
+    const perfectIndexs = getPerfectIndexs(plug.baseStartLevel - 3)
+
+    const lowStart = plug.start.get(plug.baseStartLevel - 1)
+    const lowEnd = plug.end.get(plug.baseStartLevel - 1)
+
+    const highStep = getStepFromLevel(plug.baseStartLevel - 1)
+    const startPrefix = lowStart * highStep
+    const endPrefix = lowEnd * highStep
+
+    for (let i = 0; i < STEP; i++) {
+      const prefix = step * i + startPrefix
+      indexs = indexs.concat(perfectIndexs.map((i) => i + prefix))
+    }
+    for (let i = 0; i < STEP; i++) {
+      const prefix = step * i + endPrefix
+      indexs = indexs.concat(perfectIndexs.map((i) => i + prefix))
+    }
+  }
+
+  return indexs
+}
+
+export const getPerfectIndexs = (level: number): Indexs => {
+  if (level < 0) return [0]
+
   const baseIndexs = getBaseIndexs(STEP)
 
   let l = 0
@@ -85,7 +109,6 @@ export const getBaseIndexs = (step: number): Indexs => {
 }
 
 export const getPerfectCountFromPlug = (plug: Plug): number => {
-  console.log(plug.isLevelMax, plug.baseStartLevel)
   if (plug.isLevelMax) {
     // when range is not in a block with level 0
     // the lower level adopt perfect way

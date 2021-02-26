@@ -7,6 +7,7 @@
   "license": "MIT",
   "scripts": {
     "test": "jest",
+    "test:mss": "jest mss.test.ts",
     "test:space": "jest space",
     "test:place": "jest place",
     "build": "tsc",
