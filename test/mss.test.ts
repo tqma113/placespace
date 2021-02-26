@@ -1,5 +1,5 @@
 import { mss, createRange } from '../src'
-import { shouldIndexsEqual } from './utils'
+import { shouldIndexsEqual } from './util'
 import type { GetElementCount } from '../src'
 
 describe('mss', () => {

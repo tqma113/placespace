@@ -7,7 +7,7 @@ import {
   getPerfectCountByLevel,
 } from '../src/place'
 import { createRange, createPlugFromRange } from '../src/space'
-import { shouldIndexsEqual } from './utils'
+import { shouldIndexsEqual } from './util'
 
 describe('place', () => {
   describe('place', () => {

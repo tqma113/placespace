@@ -13,7 +13,7 @@ import {
   optimize,
   getIndexOfFloor,
 } from '../src/space'
-import { shouldIndexsEqual } from './utils'
+import { shouldIndexsEqual } from './util'
 
 describe('space', () => {
   describe('Range', () => {
