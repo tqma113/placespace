@@ -100,14 +100,10 @@ const createFloorBase = (index: number, indexs: Indexs): Floor => {
     return indexs[level] || 0
   }
 
-  const add = (level: number, i: number) => {
-    indexs[level] = i
-    index += getStepFromLevel(level) * i
-  }
-
   const set = (level: number, i: number) => {
-    remove(level)
-    add(level, i)
+    const offset = i - (indexs[level] || 0)
+    index += getStepFromLevel(level) * offset
+    indexs[level] = i
   }
 
   const remove = (level: number): number => {
@@ -309,6 +305,19 @@ const isInCacheBlock = (start: number, end: number): boolean => {
 }
 
 /**
+ * shrink plug to determinate level
+ *
+ * @param {Plug} plug
+ * @returns {Plug}
+ */
+export const shrink = (plug: Plug, level: number, withCache: boolean): Plug => {
+  const start = plug.startIndex
+  const step = getStepFromLevel(level + 1) - 1
+  const end = start + (withCache ? step * 2 : step)
+  return createPlugFromRange(createRange(start, end))
+}
+
+/**
  * optimize plug to level max or level cache max
  *
  * @param {Plug} plug
@@ -335,39 +344,5 @@ export const optimize = (plug: Plug): Plug => {
       // else expand to max of level
       return expand(plug)
     }
-  }
-}
-
-/**
- * shrink plug to determinate level
- *
- * @param {Plug} plug
- * @returns {Plug}
- */
-export const shrink = (plug: Plug, level: number, withCache: boolean): Plug => {
-  if (plug.baseStartLevel === 0) return plug
-  const lowLevel = plug.baseStartLevel - 1
-  if (level > plug.baseStartLevel || (level == lowLevel && withCache === !plug.isLevelMax)) return plug
-
-  if (!plug.isLevelMax) {
-    // shrink to level max
-    const base = cloneFloor(plug.base)
-    const start = cloneFloor(plug.start)
-    const end = cloneFloor(plug.end)
-    base.set(lowLevel, start.get(lowLevel))
-    start.set(lowLevel, 0)
-    end.set(lowLevel, 0)
-    return shrink(createPlug(base, start, end, lowLevel), level, withCache)
-  } else {
-    // shrink to low level max with cache
-    const base = cloneFloor(plug.base)
-    const start = cloneFloor(plug.start)
-    const end = cloneFloor(plug.end)
-    end.set(lowLevel, start.get(lowLevel) + 1)
-    return shrink(
-      createPlug(base, start, end, plug.baseStartLevel),
-      level,
-      withCache
-    )
   }
 }
