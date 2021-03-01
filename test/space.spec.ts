@@ -10,6 +10,7 @@ import {
   createPlugFromFloor,
   createPlugFromRange,
   expand,
+  shrink,
   optimize,
   getIndexOfFloor,
 } from '../src/space'
@@ -1102,5 +1103,26 @@ describe('space', () => {
         })
       })
     })
+  })
+  
+  describe('shrink', () => {
+    it('work', () => {
+      const fooRange = createRange(0, 600)
+      const foo = createPlugFromRange(fooRange)
+      const bar = optimize(foo)
+      const baz = shrink(bar, 0, false)
+      const bazBase = createFloorFromIndexs([0])
+      const bazStart = createFloorFromIndexs([0])
+      const bazEnd = createFloorFromIndexs([7])
+
+      shouldIndexsEqual(baz.base.indexs, bazBase.indexs)
+      shouldIndexsEqual(baz.start.indexs, bazStart.indexs)
+      shouldIndexsEqual(baz.end.indexs, bazEnd.indexs)
+      expect(baz.startIndex).toBe(0)
+      expect(baz.endIndex).toBe(7)
+      expect(baz.length).toBe(8)
+    })
+
+    it.todo('other')
   })
 })

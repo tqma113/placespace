@@ -1,17 +1,18 @@
 import {
   expand,
+  shrink,
   optimize,
   createRange,
   createPlugFromRange,
   createRangeFromPlug,
 } from './space'
-import { place, getPerfectCountFromPlug } from './place'
+import { place, getCountFromPlug, couldPerfectPlace, getPerfectLevelByCount } from './place'
 import { Ok, Err } from './result'
 import { MIN, MAX } from './constant'
 
 import type { Result } from './result'
 import type { PlaceIndex } from './place'
-import type { Range, Plug } from './space'
+import type { Range } from './space'
 
 /**
  * the input info
@@ -58,14 +59,6 @@ const validateRange = (range: Range): Result<true, string> => {
   return Ok(true)
 }
 
-const validateElementCount = (plug: Plug, count: number) => {
-  if (count > plug.length) {
-    return Err(`The count: ${count} of exist elements is invalid.`)
-  }
-
-  return Ok(true)
-}
-
 /**
  * placespace
  *
@@ -84,31 +77,24 @@ export const placespace = async (
       return Err(validateResult.value)
   }
 
-  if ((await getElementCount(inputRange)) > 0) {
-    return Err(`The input range: ${inputRange} is not empty.`)
-  }
-
   let plug = optimize(createPlugFromRange(inputRange))
-
   const existCount = await getElementCount(createRangeFromPlug(plug))
-  const validateResult0 = validateElementCount(plug, existCount)
-  switch (validateResult0.kind) {
-    case 'Err':
-      return Err(validateResult0.value)
-  }
-  let sumCount = inputCount + (await getElementCount(createRangeFromPlug(plug)))
+  let sumCount = inputCount + existCount
 
-  while (sumCount > getPerfectCountFromPlug(plug)) {
-    plug = expand(plug)
+  const cpp = couldPerfectPlace(plug, sumCount)
+  if (couldPerfectPlace(plug, sumCount)) {
+    const [level, withCache] = getPerfectLevelByCount(sumCount)
+    plug = shrink(plug, level, withCache)
+  } else {
+    while (sumCount > getCountFromPlug(plug)) {
+      if (sumCount >= MAX) {
+        return Err('There is no enough space.')
+      }
 
-    const existCount = await getElementCount(createRangeFromPlug(plug))
-    const validateResult = validateElementCount(plug, existCount)
-    switch (validateResult.kind) {
-      case 'Err':
-        return Err(validateResult.value)
+      plug = expand(plug)
+      const existCount = await getElementCount(createRangeFromPlug(plug))
+      sumCount = existCount + inputCount
     }
-
-    sumCount = existCount + inputCount
   }
 
   const range = createRangeFromPlug(plug)
@@ -117,7 +103,7 @@ export const placespace = async (
   )
 
   return Ok({
-    ...place(plug, sumCount, inputCount, inputStart),
+    ...place(plug, sumCount, inputCount, inputStart, !!cpp),
     range,
   })
 }

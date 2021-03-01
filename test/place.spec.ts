@@ -2,9 +2,12 @@ import {
   place,
   getIndexs,
   getPerfectIndexs,
+  getIndexsFromLevel,
   getBaseIndexs,
-  getPerfectCountFromPlug,
+  getCountFromPlug,
   getPerfectCountByLevel,
+  getPerfectLevelByCount,
+  couldPerfectPlace,
 } from '../src/place'
 import { createRange, createPlugFromRange } from '../src/space'
 import { shouldIndexsEqual } from './util'
@@ -17,7 +20,7 @@ describe('place', () => {
         const sumCount = 5
         const inputCount = 3
         const inputStart = 2
-        const foo = place(plug, sumCount, inputCount, inputStart)
+        const foo = place(plug, sumCount, inputCount, inputStart, false)
 
         shouldIndexsEqual(foo.inputIndexs, [2, 3, 4])
         shouldIndexsEqual(foo.existIndexs, [0, 1])
@@ -28,7 +31,7 @@ describe('place', () => {
         const sumCount = 12
         const inputCount = 8
         const inputStart = 3
-        const foo = place(plug, sumCount, inputCount, inputStart)
+        const foo = place(plug, sumCount, inputCount, inputStart, false)
 
         shouldIndexsEqual(foo.inputIndexs, [3, 4, 5, 6, 7, 8, 9, 10])
         shouldIndexsEqual(foo.existIndexs, [0, 1, 2, 11])
@@ -41,7 +44,7 @@ describe('place', () => {
         const sumCount = 30
         const inputCount = 15
         const inputStart = 7
-        const foo = place(plug, sumCount, inputCount, inputStart)
+        const foo = place(plug, sumCount, inputCount, inputStart, false)
 
         shouldIndexsEqual(foo.inputIndexs, [
           14,
@@ -84,7 +87,7 @@ describe('place', () => {
         const sumCount = 55
         const inputCount = 30
         const inputStart = 20
-        const foo = place(plug, sumCount, inputCount, inputStart)
+        const foo = place(plug, sumCount, inputCount, inputStart, false)
 
         shouldIndexsEqual(foo.inputIndexs, [
           40,
@@ -299,16 +302,109 @@ describe('place', () => {
   })
 
   describe('getPerfectIndexs', () => {
+    describe('level is 0', () => {
+      it('isLevelMax is true', () => {
+        const plug = createPlugFromRange(createRange(0, 7))
+        const foo = getPerfectIndexs(plug)
+
+        shouldIndexsEqual(foo, [0, 2, 4, 6])
+      })
+
+      it('isLevelMax is false', () => {
+        const plug = createPlugFromRange(createRange(0, 15))
+        const foo = getPerfectIndexs(plug)
+
+        shouldIndexsEqual(foo, [
+          0,
+          2,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+        ])
+      })
+    })
+
+    describe('level is 1', () => {
+      it('isLevelMax is true', () => {
+        const plug = createPlugFromRange(createRange(0, 64))
+        const foo = getPerfectIndexs(plug)
+
+        shouldIndexsEqual(foo, [
+          0,
+          2,
+          4,
+          6,
+          16,
+          18,
+          20,
+          22,
+          32,
+          34,
+          36,
+          38,
+          48,
+          50,
+          52,
+          54,
+        ])
+      })
+
+      it('isLevelMax is false', () => {
+        const plug = createPlugFromRange(createRange(0, 126))
+        const foo = getPerfectIndexs(plug)
+
+        shouldIndexsEqual(foo, [
+          0,
+          2,
+          4,
+          6,
+          16,
+          18,
+          20,
+          22,
+          32,
+          34,
+          36,
+          38,
+          48,
+          50,
+          52,
+          54,
+          0 + 64,
+          2 + 64,
+          4 + 64,
+          6 + 64,
+          16 + 64,
+          18 + 64,
+          20 + 64,
+          22 + 64,
+          32 + 64,
+          34 + 64,
+          36 + 64,
+          38 + 64,
+          48 + 64,
+          50 + 64,
+          52 + 64,
+          54 + 64,
+        ])
+      })
+    })
+  })
+
+  describe('getIndexsFromLevel', () => {
     it('level = -1', () => {
-      expect(getPerfectIndexs(-1)).toStrictEqual([0])
+      expect(getIndexsFromLevel(-1)).toStrictEqual([0])
     })
 
     it('level = 0', () => {
-      expect(getPerfectIndexs(0)).toStrictEqual([0, 2, 4, 6])
+      expect(getIndexsFromLevel(0)).toStrictEqual([0, 2, 4, 6])
     })
 
     it('level = 1', () => {
-      expect(getPerfectIndexs(1)).toStrictEqual([
+      expect(getIndexsFromLevel(1)).toStrictEqual([
         0,
         2,
         4,
@@ -329,7 +425,7 @@ describe('place', () => {
     })
 
     it('level = 2', () => {
-      expect(getPerfectIndexs(2)).toStrictEqual([
+      expect(getIndexsFromLevel(2)).toStrictEqual([
         // level 0
         0,
         2,
@@ -415,18 +511,18 @@ describe('place', () => {
     })
   })
 
-  describe('getPerfectCountFromPlug', () => {
+  describe('getCountFromPlug', () => {
     describe('level is 0', () => {
       it('isLevelMax is false', () => {
         const foo = createPlugFromRange(createRange(0, 1))
 
-        expect(getPerfectCountFromPlug(foo)).toBe(4 ** 0 * 2)
+        expect(getCountFromPlug(foo)).toBe(4 ** 0 * 2)
       })
 
       it('isLevelMax is true', () => {
         const foo = createPlugFromRange(createRange(0, 7))
 
-        expect(getPerfectCountFromPlug(foo)).toBe(4 ** 0 * 8)
+        expect(getCountFromPlug(foo)).toBe(4 ** 0 * 8)
       })
     })
 
@@ -434,13 +530,13 @@ describe('place', () => {
       it('isLevelMax is false', () => {
         const foo = createPlugFromRange(createRange(0, 15))
 
-        expect(getPerfectCountFromPlug(foo)).toBe(4 ** 0 * 8 * 2)
+        expect(getCountFromPlug(foo)).toBe(4 ** 0 * 8 * 2)
       })
 
       it('isLevelMax is true', () => {
         const foo = createPlugFromRange(createRange(0, 63))
 
-        expect(getPerfectCountFromPlug(foo)).toBe(4 ** 1 * 8)
+        expect(getCountFromPlug(foo)).toBe(4 ** 1 * 8)
       })
     })
 
@@ -448,13 +544,13 @@ describe('place', () => {
       it('isLevelMax is false', () => {
         const foo = createPlugFromRange(createRange(0, 127))
 
-        expect(getPerfectCountFromPlug(foo)).toBe(4 ** 1 * 8 * 2)
+        expect(getCountFromPlug(foo)).toBe(4 ** 1 * 8 * 2)
       })
 
       it('isLevelMax is true', () => {
         const foo = createPlugFromRange(createRange(0, 511))
 
-        expect(getPerfectCountFromPlug(foo)).toBe(4 ** 2 * 8)
+        expect(getCountFromPlug(foo)).toBe(4 ** 2 * 8)
       })
     })
 
@@ -462,13 +558,13 @@ describe('place', () => {
       it('isLevelMax is false', () => {
         const foo = createPlugFromRange(createRange(0, 1023))
 
-        expect(getPerfectCountFromPlug(foo)).toBe(4 ** 2 * 8 * 2)
+        expect(getCountFromPlug(foo)).toBe(4 ** 2 * 8 * 2)
       })
 
       it('isLevelMax is true', () => {
         const foo = createPlugFromRange(createRange(0, 4095))
 
-        expect(getPerfectCountFromPlug(foo)).toBe(4 ** 3 * 8)
+        expect(getCountFromPlug(foo)).toBe(4 ** 3 * 8)
       })
     })
   })
@@ -485,5 +581,113 @@ describe('place', () => {
     expect(getPerfectCountByLevel(8)).toBe(4 ** 8)
     expect(getPerfectCountByLevel(9)).toBe(4 ** 9)
     expect(getPerfectCountByLevel(10)).toBe(4 ** 10)
+  })
+
+  describe('getPerfectLevelByCount', () => {
+    describe('level is 0', () => {
+      it('with cache', () => {
+        expect(getPerfectLevelByCount(1)).toStrictEqual([0, true])
+      })
+
+      it('without cache', () => {
+        expect(getPerfectLevelByCount(3)).toStrictEqual([0, false])
+      })
+    })
+
+    describe('level is 1', () => {
+      it('with cache', () => {
+        expect(getPerfectLevelByCount(5)).toStrictEqual([1, true])
+      })
+
+      it('without cache', () => {
+        expect(getPerfectLevelByCount(9)).toStrictEqual([1, false])
+      })
+    })
+
+    describe('level is 2', () => {
+      it('with cache', () => {
+        expect(getPerfectLevelByCount(17)).toStrictEqual([2, true])
+      })
+
+      it('without cache', () => {
+        expect(getPerfectLevelByCount(33)).toStrictEqual([2, false])
+      })
+    })
+    
+    describe('level is 3', () => {
+      it('with cache', () => {
+        expect(getPerfectLevelByCount(65)).toStrictEqual([3, true])
+      })
+
+      it('without cache', () => {
+        expect(getPerfectLevelByCount(129)).toStrictEqual([3, false])
+      })
+    })
+  })
+
+  describe('couldPerfectPlace', () => {
+    describe('level is 0', () => {
+      it('isLevelMax is false', () => {
+        const foo = createPlugFromRange(createRange(0, 1))
+
+        expect(couldPerfectPlace(foo, 1)).toBe(true)
+        expect(couldPerfectPlace(foo, 3)).toBe(false)
+      })
+
+      it('isLevelMax is true', () => {
+        const foo = createPlugFromRange(createRange(0, 7))
+
+        expect(couldPerfectPlace(foo, 3)).toBe(true)
+        expect(couldPerfectPlace(foo, 5)).toBe(false)
+      })
+    })
+
+    describe('level is 1', () => {
+      it('isLevelMax is false', () => {
+        const foo = createPlugFromRange(createRange(0, 15))
+
+        expect(couldPerfectPlace(foo, 5)).toBe(true)
+        expect(couldPerfectPlace(foo, 9)).toBe(false)
+      })
+
+      it('isLevelMax is true', () => {
+        const foo = createPlugFromRange(createRange(0, 63))
+
+        expect(couldPerfectPlace(foo, 9)).toBe(true)
+        expect(couldPerfectPlace(foo, 17)).toBe(false)
+      })
+    })
+
+    describe('level is 2', () => {
+      it('isLevelMax is false', () => {
+        const foo = createPlugFromRange(createRange(0, 127))
+
+        expect(couldPerfectPlace(foo, 17)).toBe(true)
+        expect(couldPerfectPlace(foo, 33)).toBe(false)
+      })
+
+      it('isLevelMax is true', () => {
+        const foo = createPlugFromRange(createRange(0, 511))
+
+        expect(couldPerfectPlace(foo, 33)).toBe(true)
+        expect(couldPerfectPlace(foo, 65)).toBe(false)
+      })
+    })
+
+    describe('level is 3', () => {
+      it('isLevelMax is false', () => {
+        const foo = createPlugFromRange(createRange(0, 1023))
+
+        expect(couldPerfectPlace(foo, 65)).toBe(true)
+        expect(couldPerfectPlace(foo, 129)).toBe(false)
+      })
+
+      it('isLevelMax is true', () => {
+        const foo = createPlugFromRange(createRange(0, 4095))
+
+        expect(couldPerfectPlace(foo, 129)).toBe(true)
+        expect(couldPerfectPlace(foo, 257)).toBe(false)
+      })
+    })
   })
 })

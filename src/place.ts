@@ -14,16 +14,26 @@ export type PlaceIndex = {
   existIndexs: Indexs
 }
 
+/**
+ * place element corrently
+ *
+ * @param {Plug} plug
+ * @param {number} sumCount
+ * @param {number} inputCount
+ * @param {number} inputStart
+ * @param {boolean} perfect
+ */
 export const place = (
   plug: Plug,
   sumCount: number,
   inputCount: number,
-  inputStart: number
+  inputStart: number,
+  perfect: boolean
 ): PlaceIndex => {
   let inputIndexs: Indexs = []
   let existIndexs: Indexs = []
 
-  const indexs: Indexs = getIndexs(plug)
+  const indexs: Indexs = perfect ? getPerfectIndexs(plug) : getIndexs(plug)
 
   let inputIndex = 0
   for (let i = 0; i < indexs.length, i < sumCount; i++) {
@@ -45,23 +55,21 @@ export const getIndexs = (plug: Plug): Indexs => {
   let indexs: Indexs = []
 
   if (plug.isLevelMax) {
-    const perfectIndexs = getPerfectIndexs(plug.baseStartLevel - 2)
+    const perfectIndexs = getIndexsFromLevel(plug.baseStartLevel - 2)
     const step = getStepFromLevel(plug.baseStartLevel - 1)
+    const basePrefix = plug.base.index
     for (let i = 0; i < STEP; i++) {
-      const prefix = step * i
+      const prefix = step * i + basePrefix
       indexs = indexs.concat(perfectIndexs.map((i) => i + prefix))
     }
   } else {
     const step = getStepFromLevel(plug.baseStartLevel - 2)
-
-    const perfectIndexs = getPerfectIndexs(plug.baseStartLevel - 3)
-
-    const lowStart = plug.start.get(plug.baseStartLevel - 1)
-    const lowEnd = plug.end.get(plug.baseStartLevel - 1)
-
     const highStep = getStepFromLevel(plug.baseStartLevel - 1)
-    const startPrefix = lowStart * highStep
-    const endPrefix = lowEnd * highStep
+
+    const perfectIndexs = getIndexsFromLevel(plug.baseStartLevel - 3)
+
+    const startPrefix = plug.base.index * plug.start.index
+    const endPrefix = startPrefix + highStep
 
     for (let i = 0; i < STEP; i++) {
       const prefix = step * i + startPrefix
@@ -76,7 +84,26 @@ export const getIndexs = (plug: Plug): Indexs => {
   return indexs
 }
 
-export const getPerfectIndexs = (level: number): Indexs => {
+export const getPerfectIndexs = (plug: Plug): Indexs => {
+  let indexs: Indexs = []
+
+  if (plug.isLevelMax) {
+    const perfectIndexs = getIndexsFromLevel(plug.baseStartLevel - 1)
+    const prefix = plug.base.index
+    indexs = perfectIndexs.map(i => i + prefix)
+  } else {
+    const lowIndexs = getIndexsFromLevel(plug.baseStartLevel - 2)
+    const step = getStepFromLevel(plug.baseStartLevel - 1)
+    const startPrefix = plug.base.index * plug.start.index
+    const endPrefix = startPrefix + step
+    indexs = lowIndexs.map(i => i + startPrefix)
+    indexs = indexs.concat(lowIndexs.map(i => i + endPrefix))
+  }
+
+  return indexs
+}
+
+export const getIndexsFromLevel = (level: number): Indexs => {
   if (level < 0) return [0]
 
   const baseIndexs = getBaseIndexs(STEP)
@@ -108,7 +135,7 @@ export const getBaseIndexs = (step: number): Indexs => {
   return indexs
 }
 
-export const getPerfectCountFromPlug = (plug: Plug): number => {
+export const getCountFromPlug = (plug: Plug): number => {
   if (plug.isLevelMax) {
     // when range is not in a block with level 0
     // the lower level adopt perfect way
@@ -134,4 +161,40 @@ export const getPerfectCountFromPlug = (plug: Plug): number => {
 export const getPerfectCountByLevel = (level: number): number => {
   if (level < 0) return 1
   return (STEP / 2) ** level
+}
+
+/**
+ * perfect count in a single range with determinate level
+ *
+ * level=0, part=STEP, count=STEP/2
+ * level>0, part=STEP, perfectPart=part/2, count=perfectPart*getCountOfLevel(level-1)
+ *
+ * @param {number} count
+ * @returns {[number, boolean]}
+ */
+export const getPerfectLevelByCount = (count: number): [number, boolean] => {
+  if (count < 0) return [0, false]
+  let level = 0
+  let perfectCount = getPerfectCountByLevel(level + 1)
+  while (perfectCount < count) {
+    level++
+    perfectCount = getPerfectCountByLevel(level + 1)
+  }
+  if (perfectCount / 2 >= count) return [level, true]
+  return [level, false]
+}
+
+/**
+ * whether the plug could perfect place elements with determinate count
+ *
+ * @param {Plug} plug
+ * @param {number} count
+ * @returns {boolean}
+ */
+export const couldPerfectPlace = (
+  plug: Plug,
+  count: number
+): boolean => {
+  const perfectCount = getPerfectCountByLevel(plug.baseStartLevel)
+  return plug.isLevelMax ? perfectCount >= count : perfectCount / 2 >= count
 }

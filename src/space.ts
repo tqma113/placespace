@@ -230,10 +230,10 @@ const createPlugBase = (
   }
 }
 export const createPlug = (
-  base: Floor = createFloorFromIndexs(),
-  start: Floor = createFloorFromIndexs(),
-  end: Floor = createFloorFromIndexs(),
-  baseStartLevel: number = 0
+  base: Floor,
+  start: Floor,
+  end: Floor,
+  baseStartLevel: number
 ): Plug => {
   const baseIndex = getIndexOfFloor(base)
   const startIndex = baseIndex + getIndexOfFloor(start)
@@ -278,6 +278,7 @@ export const createPlugFromRange = (range: Range) => {
  * expand plug to get more space
  *
  * @param {Plug} plug
+ * @returns {Plug}
  */
 export const expand = (plug: Plug): Plug => {
   if (!plug.isLevelMax) {
@@ -307,6 +308,12 @@ const isInCacheBlock = (start: number, end: number): boolean => {
   return true
 }
 
+/**
+ * optimize plug to level max or level cache max
+ *
+ * @param {Plug} plug
+ * @returns {Plug}
+ */
 export const optimize = (plug: Plug): Plug => {
   if (plug.baseStartLevel === 1) {
     if (!plug.isLevelMax) return expand(plug)
@@ -328,5 +335,39 @@ export const optimize = (plug: Plug): Plug => {
       // else expand to max of level
       return expand(plug)
     }
+  }
+}
+
+/**
+ * shrink plug to determinate level
+ *
+ * @param {Plug} plug
+ * @returns {Plug}
+ */
+export const shrink = (plug: Plug, level: number, withCache: boolean): Plug => {
+  if (plug.baseStartLevel === 0) return plug
+  const lowLevel = plug.baseStartLevel - 1
+  if (level > plug.baseStartLevel || (level == lowLevel && withCache === !plug.isLevelMax)) return plug
+
+  if (!plug.isLevelMax) {
+    // shrink to level max
+    const base = cloneFloor(plug.base)
+    const start = cloneFloor(plug.start)
+    const end = cloneFloor(plug.end)
+    base.set(lowLevel, start.get(lowLevel))
+    start.set(lowLevel, 0)
+    end.set(lowLevel, 0)
+    return shrink(createPlug(base, start, end, lowLevel), level, withCache)
+  } else {
+    // shrink to low level max with cache
+    const base = cloneFloor(plug.base)
+    const start = cloneFloor(plug.start)
+    const end = cloneFloor(plug.end)
+    end.set(lowLevel, start.get(lowLevel) + 1)
+    return shrink(
+      createPlug(base, start, end, plug.baseStartLevel),
+      level,
+      withCache
+    )
   }
 }
