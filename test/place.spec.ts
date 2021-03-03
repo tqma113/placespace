@@ -370,7 +370,7 @@ describe('place', () => {
     it('overload level is 0', () => {
       const foo = getOverloadIndexs(2 ** 22 * 2 ** 0)
       const bar = getPerfectIndexs(createPlugFromRange(createRange(MIN, MAX)))
-  
+
       shouldIndexsEqual(foo, bar)
     })
 
