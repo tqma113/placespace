@@ -8,6 +8,7 @@ import {
   createFloorFromIndexs,
   createPlug,
   createPlugFromFloor,
+  createPlugFromIndex,
   createPlugFromRange,
   expand,
   optimize,
@@ -927,6 +928,67 @@ describe('space', () => {
       })
     })
 
+    describe('createPlugFromIndex', () => {
+      it('level is 0', () => {
+        const foo0 = createPlugFromIndex(0)
+        expect(foo0.baseStartLevel).toBe(1)
+        expect(foo0.startIndex).toBe(0)
+        expect(foo0.endIndex).toBe(7)
+
+        const foo1 = createPlugFromIndex(1)
+        expect(foo1.baseStartLevel).toBe(1)
+        expect(foo1.startIndex).toBe(0)
+        expect(foo1.endIndex).toBe(7)
+
+        const foo2 = createPlugFromIndex(2)
+        expect(foo2.baseStartLevel).toBe(1)
+        expect(foo2.startIndex).toBe(0)
+        expect(foo2.endIndex).toBe(7)
+
+        const foo3 = createPlugFromIndex(3)
+        expect(foo3.baseStartLevel).toBe(1)
+        expect(foo3.startIndex).toBe(0)
+        expect(foo3.endIndex).toBe(7)
+
+        const foo4 = createPlugFromIndex(4)
+        expect(foo4.baseStartLevel).toBe(1)
+        expect(foo4.startIndex).toBe(0)
+        expect(foo4.endIndex).toBe(7)
+
+        const foo5 = createPlugFromIndex(5)
+        expect(foo5.baseStartLevel).toBe(1)
+        expect(foo5.startIndex).toBe(0)
+        expect(foo5.endIndex).toBe(7)
+
+        const foo6 = createPlugFromIndex(6)
+        expect(foo6.baseStartLevel).toBe(1)
+        expect(foo6.startIndex).toBe(0)
+        expect(foo6.endIndex).toBe(7)
+
+        const foo7 = createPlugFromIndex(7)
+        expect(foo7.baseStartLevel).toBe(1)
+        expect(foo7.startIndex).toBe(0)
+        expect(foo7.endIndex).toBe(7)
+      })
+
+      it('other', () => {
+        const foo0 = createPlugFromIndex(8)
+        expect(foo0.baseStartLevel).toBe(1)
+        expect(foo0.startIndex).toBe(8)
+        expect(foo0.endIndex).toBe(15)
+
+        const foo1 = createPlugFromIndex(16)
+        expect(foo1.baseStartLevel).toBe(1)
+        expect(foo1.startIndex).toBe(16)
+        expect(foo1.endIndex).toBe(23)
+
+        const foo2 = createPlugFromIndex(24)
+        expect(foo2.baseStartLevel).toBe(1)
+        expect(foo2.startIndex).toBe(24)
+        expect(foo2.endIndex).toBe(31)
+      })
+    })
+
     describe('createPlugFromRange', () => {
       describe('without base', () => {
         it('simple', () => {
@@ -1148,6 +1210,40 @@ describe('space', () => {
             expect(bar.length).toBe(1024)
           })
         })
+
+        describe('level is 3', () => {
+          it('in level block', () => {
+            const fooRange = createRange(0, 1023)
+            const foo = createPlugFromRange(fooRange)
+            const bar = expand(foo)
+            const barBase = createFloorFromIndexs([0])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([7, 7, 7, 7])
+
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(0)
+            expect(bar.endIndex).toBe(4095)
+            expect(bar.length).toBe(4096)
+          })
+
+          it('in cache block', () => {
+            const fooRange = createRange(0, 4095)
+            const foo = createPlugFromRange(fooRange)
+            const bar = expand(foo)
+            const barBase = createFloorFromIndexs([0])
+            const barStart = createFloorFromIndexs([0])
+            const barEnd = createFloorFromIndexs([7, 7, 7, 7, 1])
+
+            shouldIndexsEqual(bar.base.indexs, barBase.indexs)
+            shouldIndexsEqual(bar.start.indexs, barStart.indexs)
+            shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
+            expect(bar.startIndex).toBe(0)
+            expect(bar.endIndex).toBe(8191)
+            expect(bar.length).toBe(8192)
+          })
+        })
       })
 
       describe('with base', () => {
@@ -1253,6 +1349,8 @@ describe('space', () => {
           })
         })
       })
+
+      describe('special', () => {})
     })
 
     describe('optimize', () => {

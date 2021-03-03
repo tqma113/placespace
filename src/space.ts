@@ -266,6 +266,17 @@ export const createPlugFromFloor = (start: Floor, end: Floor): Plug => {
 
   return createPlug(base, start, end, baseStartLevel)
 }
+
+export const createPlugFromIndex = (index: number): Plug => {
+  // should not change original data
+  const start = createFloor(index)
+  const end = createFloor(index)
+
+  start.set(0, 0)
+  end.set(0, 7)
+
+  return createPlugFromFloor(start, end)
+}
 export const createPlugFromRange = (range: Range) => {
   return createPlugFromFloor(createFloor(range.start), createFloor(range.end))
 }

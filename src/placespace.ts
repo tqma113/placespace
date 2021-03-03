@@ -2,13 +2,12 @@ import {
   expand,
   is_max,
   optimize,
-  createRange,
-  createPlugFromRange,
+  createPlugFromIndex,
   createRangeFromPlug,
 } from './space'
 import { place, getCountFromPlug } from './place'
 import { Ok, Err } from './result'
-import { MIN, MAX, MODE } from './constant'
+import { MAX, MODE } from './constant'
 
 import type { Result } from './result'
 import type { PlaceIndex } from './place'
@@ -41,7 +40,7 @@ export type PlaceResult = PlaceIndex & {
  * @param {Range} range
  * @returns {Promise<number>}
  */
-export type GetElementCount = (range: Range) => Promise<number>
+export type GetElementCount = (start: number, end: number) => Promise<number>
 
 /**
  * placespace
@@ -54,22 +53,11 @@ export const placespace = async (
   getElementCount: GetElementCount
 ): Promise<Result<PlaceResult, string>> => {
   let { inputCount, index, mode } = input
-
   mode = mode === MODE.Pre ? MODE.Pre : MODE.Post
+  const startIndex = mode === MODE.Pre ? index : index >= MAX ? MAX : index + 1
 
-  let start = 0
-  let end = 0
-  if (mode === MODE.Pre) {
-    start = index - inputCount < MIN ? MIN : index - inputCount
-    end = start + inputCount - 1
-  } else {
-    end = index + inputCount > MAX ? MAX : index + inputCount
-    start = end - inputCount + 1
-  }
-  const inputRange = createRange(start, end)
-
-  let plug = optimize(createPlugFromRange(inputRange))
-  const existCount = await getElementCount(createRangeFromPlug(plug))
+  let plug = optimize(createPlugFromIndex(startIndex))
+  const existCount = await getElementCount(plug.startIndex, plug.endIndex)
   let sumCount = inputCount + existCount
 
   while (sumCount > getCountFromPlug(plug)) {
@@ -79,15 +67,13 @@ export const placespace = async (
     if (is_max(plug)) break
 
     plug = expand(plug)
-    const existCount = await getElementCount(createRangeFromPlug(plug))
+    const existCount = await getElementCount(plug.startIndex, plug.endIndex)
     sumCount = existCount + inputCount
   }
 
   const range = createRangeFromPlug(plug)
-  const preCount = await getElementCount(
-    createRange(range.start, inputRange.start)
-  )
-  const inputStart = mode === MODE.Pre ? preCount - 1 : preCount
+  const preCount = await getElementCount(range.start, index - 1)
+  const inputStart = mode === MODE.Pre ? preCount : preCount + 1
 
   return Ok({
     ...place(plug, sumCount, inputCount, inputStart, is_max(plug)),
