@@ -1,4 +1,4 @@
-import { STEP } from './constant'
+import { STEP, MAX, MIN } from './constant'
 import { getStepFromLevel } from './util'
 
 /**
@@ -277,6 +277,8 @@ export const createPlugFromRange = (range: Range) => {
  * @returns {Plug}
  */
 export const expand = (plug: Plug): Plug => {
+  if (is_max(plug)) return plug
+
   if (!plug.isLevelMax) {
     // expand to level max
     // max *4 usualy *2
@@ -302,19 +304,6 @@ const isInCacheBlock = (start: number, end: number): boolean => {
   if (end <= 0) return false
   if (start % 2 !== 0) return false
   return true
-}
-
-/**
- * shrink plug to determinate level
- *
- * @param {Plug} plug
- * @returns {Plug}
- */
-export const shrink = (plug: Plug, level: number, withCache: boolean): Plug => {
-  const start = plug.startIndex
-  const step = getStepFromLevel(level + 1) - 1
-  const end = start + (withCache ? step * 2 : step)
-  return createPlugFromRange(createRange(start, end))
 }
 
 /**
@@ -345,4 +334,8 @@ export const optimize = (plug: Plug): Plug => {
       return expand(plug)
     }
   }
+}
+
+export const is_max = (plug: Plug): boolean => {
+  return plug.startIndex <= MIN && plug.endIndex >= MAX
 }

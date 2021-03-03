@@ -10,7 +10,6 @@ import {
   createPlugFromFloor,
   createPlugFromRange,
   expand,
-  shrink,
   optimize,
   getIndexOfFloor,
 } from '../src/space'
@@ -283,59 +282,351 @@ describe('space', () => {
       })
     })
 
-    describe('createFloorFromIndex', () => {
-      it('simple', () => {
+    describe('createFloorFromIndexs', () => {
+      it('level is 0', () => {
         const foo = createFloorFromIndexs()
         const fooIndex = getIndexOfFloor(foo)
         const bar = createFloor(fooIndex)
 
         expect(bar.index).toBe(foo.index)
+        expect(foo.index).toBe(0)
         shouldIndexsEqual(bar.indexs, foo.indexs)
       })
 
-      it('level is 0', () => {
-        const foo = createFloorFromIndexs([7])
-        const fooIndex = getIndexOfFloor(foo)
-        const bar = createFloor(fooIndex)
-
-        expect(bar.index).toBe(foo.index)
-        shouldIndexsEqual(bar.indexs, foo.indexs)
+      describe('max', () => {
+        it('level is 1', () => {
+          const foo = createFloorFromIndexs([7])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(7)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+  
+        it('level is 2', () => {
+          const foo = createFloorFromIndexs([7, 7])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(63)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+  
+        it('level is 3', () => {
+          const foo = createFloorFromIndexs([7, 7, 7])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(511)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+  
+        it('level is 4', () => {
+          const foo = createFloorFromIndexs([7, 7, 7, 7])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(4095)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+  
+        it('level is 5', () => {
+          const foo = createFloorFromIndexs([7, 7, 7, 7, 7])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(32767)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+  
+        it('level is 6', () => {
+          const foo = createFloorFromIndexs([7, 7, 7, 7, 7, 7])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(262143)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+  
+        it('level is 7', () => {
+          const foo = createFloorFromIndexs([7, 7, 7, 7, 7, 7, 7])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(2097151)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+  
+        it('level is 8', () => {
+          const foo = createFloorFromIndexs([7, 7, 7, 7, 7, 7, 7, 7])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(16777215)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+  
+        it('level is 9', () => {
+          const foo = createFloorFromIndexs([7, 7, 7, 7, 7, 7, 7, 7, 7])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(134217727)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+  
+        it('level is 10', () => {
+          const foo = createFloorFromIndexs([7, 7, 7, 7, 7, 7, 7, 7, 7, 7])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(1073741823)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+  
+        it('level is 11', () => {
+          const foo = createFloorFromIndexs([7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(8589934591)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
       })
 
-      it('level is 1', () => {
-        const foo = createFloorFromIndexs([7, 7])
-        const fooIndex = getIndexOfFloor(foo)
-        const bar = createFloor(fooIndex)
+      describe('perfect max', () => {
+        it('level is 1', () => {
+          const foo = createFloorFromIndexs([6])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(6)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
 
-        expect(bar.index).toBe(foo.index)
-        shouldIndexsEqual(bar.indexs, foo.indexs)
+        it('level is 2', () => {
+          const foo = createFloorFromIndexs([6, 6])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(54)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+
+        it('level is 3', () => {
+          const foo = createFloorFromIndexs([6, 6, 6])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(438)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+
+        it('level is 4', () => {
+          const foo = createFloorFromIndexs([6, 6, 6, 6])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(3510)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+
+        it('level is 5', () => {
+          const foo = createFloorFromIndexs([6, 6, 6, 6, 6])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(28086)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+
+        it('level is 6', () => {
+          const foo = createFloorFromIndexs([6, 6, 6, 6, 6, 6])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(224694)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+
+        it('level is 7', () => {
+          const foo = createFloorFromIndexs([6, 6, 6, 6, 6, 6, 6])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(1797558)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+
+        it('level is 8', () => {
+          const foo = createFloorFromIndexs([6, 6, 6, 6, 6, 6, 6, 6])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(14380470)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+
+        it('level is 9', () => {
+          const foo = createFloorFromIndexs([6, 6, 6, 6, 6, 6, 6, 6, 6])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(115043766)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+
+        it('level is 10', () => {
+          const foo = createFloorFromIndexs([6, 6, 6, 6, 6, 6, 6, 6, 6, 6])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(920350134)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+
+        it('level is 11', () => {
+          const foo = createFloorFromIndexs([6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(7362801078)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
       })
 
-      it('level is 2', () => {
-        const foo = createFloorFromIndexs([7, 7, 7])
-        const fooIndex = getIndexOfFloor(foo)
-        const bar = createFloor(fooIndex)
+      describe('overload', () => {
+        it('overload 0', () => {
+          const foo = createFloorFromIndexs([6, 6, 6, 6, 6, 6, 6, 6, 6, 6])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(920350134)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
 
-        expect(bar.index).toBe(foo.index)
-        shouldIndexsEqual(bar.indexs, foo.indexs)
-      })
+        it('overload 1', () => {
+          const foo = createFloorFromIndexs([6, 6, 6, 6, 6, 6, 6, 6, 6, 7])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(1054567862)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
 
-      it('level is 2 not max', () => {
-        const foo = createFloorFromIndexs([7, 7, 6])
-        const fooIndex = getIndexOfFloor(foo)
-        const bar = createFloor(fooIndex)
+        it('overload 2', () => {
+          const foo = createFloorFromIndexs([6, 6, 6, 6, 6, 6, 6, 6, 7, 7])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(1071345078)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
 
-        expect(bar.index).toBe(foo.index)
-        shouldIndexsEqual(bar.indexs, foo.indexs)
-      })
+        it('overload 3', () => {
+          const foo = createFloorFromIndexs([6, 6, 6, 6, 6, 6, 6, 7, 7, 7])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(1073442230)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
 
-      it('level is 3', () => {
-        const foo = createFloorFromIndexs([7, 7, 7, 7])
-        const fooIndex = getIndexOfFloor(foo)
-        const bar = createFloor(fooIndex)
+        it('overload 4', () => {
+          const foo = createFloorFromIndexs([6, 6, 6, 6, 6, 6, 7, 7, 7, 7])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(1073704374)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
 
-        expect(bar.index).toBe(foo.index)
-        shouldIndexsEqual(bar.indexs, foo.indexs)
+        it('overload 5', () => {
+          const foo = createFloorFromIndexs([6, 6, 6, 6, 6, 7, 7, 7, 7, 7])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(1073737142)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+
+        it('overload 6', () => {
+          const foo = createFloorFromIndexs([6, 6, 6, 6, 7, 7, 7, 7, 7, 7])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(1073741238)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+
+        it('overload 7', () => {
+          const foo = createFloorFromIndexs([6, 6, 6, 7, 7, 7, 7, 7, 7, 7])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(1073741750)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+
+        it('overload 8', () => {
+          const foo = createFloorFromIndexs([6, 6, 7, 7, 7, 7, 7, 7, 7, 7])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(1073741814)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+
+        it('overload 9', () => {
+          const foo = createFloorFromIndexs([6, 7, 7, 7, 7, 7, 7, 7, 7, 7])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(1073741822)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
+
+        it('overload 10', () => {
+          const foo = createFloorFromIndexs([7, 7, 7, 7, 7, 7, 7, 7, 7, 7])
+          const fooIndex = getIndexOfFloor(foo)
+          const bar = createFloor(fooIndex)
+  
+          expect(bar.index).toBe(foo.index)
+          expect(foo.index).toBe(1073741823)
+          shouldIndexsEqual(bar.indexs, foo.indexs)
+        })
       })
     })
 
@@ -1102,40 +1393,6 @@ describe('space', () => {
           })
         })
       })
-    })
-  })
-  
-  describe('shrink', () => {
-    it('work', () => {
-      const fooRange = createRange(0, 600)
-      const foo = createPlugFromRange(fooRange)
-      const bar = shrink(foo, 0, false)
-      const barBase = createFloorFromIndexs([0])
-      const barStart = createFloorFromIndexs([0])
-      const barEnd = createFloorFromIndexs([7])
-
-      shouldIndexsEqual(bar.base.indexs, barBase.indexs)
-      shouldIndexsEqual(bar.start.indexs, barStart.indexs)
-      shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
-      expect(bar.startIndex).toBe(0)
-      expect(bar.endIndex).toBe(7)
-      expect(bar.length).toBe(8)
-    })
-
-    it('inner', () => {
-      const fooRange = createRange(16, 63)
-      const foo = createPlugFromRange(fooRange)
-      const bar = shrink(foo, 0, false)
-      const barBase = createFloorFromIndexs([0, 2])
-      const barStart = createFloorFromIndexs([0])
-      const barEnd = createFloorFromIndexs([7])
-
-      shouldIndexsEqual(bar.base.indexs, barBase.indexs)
-      shouldIndexsEqual(bar.start.indexs, barStart.indexs)
-      shouldIndexsEqual(bar.end.indexs, barEnd.indexs)
-      expect(bar.startIndex).toBe(16)
-      expect(bar.endIndex).toBe(23)
-      expect(bar.length).toBe(8)
     })
   })
 })

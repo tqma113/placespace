@@ -1,4 +1,4 @@
-import { STEP } from './constant'
+import { STEP, MAX_LEVEL } from './constant'
 import { getStepFromLevel } from './util'
 
 import type { Plug, Indexs } from './space'
@@ -28,12 +28,14 @@ export const place = (
   sumCount: number,
   inputCount: number,
   inputStart: number,
-  perfect: boolean
+  overload: boolean
 ): PlaceIndex => {
   let inputIndexs: Indexs = []
   let existIndexs: Indexs = []
 
-  const indexs: Indexs = perfect ? getPerfectIndexs(plug) : getIndexs(plug)
+  const indexs: Indexs = overload
+    ? getOverloadIndexs(sumCount)
+    : getIndexs(plug)
 
   let inputIndex = 0
   for (let i = 0; i < indexs.length, i < sumCount; i++) {
@@ -84,29 +86,56 @@ export const getIndexs = (plug: Plug): Indexs => {
   return indexs
 }
 
+export const getOverloadLevel = (sumCount: number) => {
+  let overloadCount = getPerfectCountByLevel(MAX_LEVEL)
+  let level = 0
+  while (overloadCount < sumCount) {
+    level++
+    overloadCount = overloadCount * 2
+  }
+  return level
+}
+
+export const getOverloadIndexs = (sumCount: number): Indexs => {
+  let indexs: Indexs = []
+
+  const overloadLevel = getOverloadLevel(sumCount)
+  const baseLevel = MAX_LEVEL - overloadLevel
+  const baseIndexs = getIndexsFromLevel(baseLevel - 2)
+  const overloadIndexs = getIndexsFromLevel(overloadLevel - 1, 1)
+  const step = getStepFromLevel(baseLevel - 1)
+
+  for (const index of overloadIndexs) {
+    const prefix = index * step
+    indexs = indexs.concat(baseIndexs.map((i) => i + prefix))
+  }
+
+  return indexs
+}
+
 export const getPerfectIndexs = (plug: Plug): Indexs => {
   let indexs: Indexs = []
 
   if (plug.isLevelMax) {
     const perfectIndexs = getIndexsFromLevel(plug.baseStartLevel - 1)
     const prefix = plug.base.index
-    indexs = perfectIndexs.map(i => i + prefix)
+    indexs = perfectIndexs.map((i) => i + prefix)
   } else {
     const lowIndexs = getIndexsFromLevel(plug.baseStartLevel - 2)
     const step = getStepFromLevel(plug.baseStartLevel - 1)
     const startPrefix = plug.base.index * plug.start.index
     const endPrefix = startPrefix + step
-    indexs = lowIndexs.map(i => i + startPrefix)
-    indexs = indexs.concat(lowIndexs.map(i => i + endPrefix))
+    indexs = lowIndexs.map((i) => i + startPrefix)
+    indexs = indexs.concat(lowIndexs.map((i) => i + endPrefix))
   }
 
   return indexs
 }
 
-export const getIndexsFromLevel = (level: number): Indexs => {
+export const getIndexsFromLevel = (level: number, step = 2): Indexs => {
   if (level < 0) return [0]
 
-  const baseIndexs = getBaseIndexs(STEP)
+  const baseIndexs = getBaseIndexs(step)
 
   let l = 0
   let indexs = baseIndexs
@@ -128,7 +157,7 @@ export const getIndexsFromLevel = (level: number): Indexs => {
 export const getBaseIndexs = (step: number): Indexs => {
   let indexs: Indexs = []
 
-  for (let i = 0; i < step; i += 2) {
+  for (let i = 0; i < STEP; i += step) {
     indexs.push(i)
   }
 
@@ -191,10 +220,7 @@ export const getPerfectLevelByCount = (count: number): [number, boolean] => {
  * @param {number} count
  * @returns {boolean}
  */
-export const couldPerfectPlace = (
-  plug: Plug,
-  count: number
-): boolean => {
+export const couldPerfectPlace = (plug: Plug, count: number): boolean => {
   const perfectCount = getPerfectCountByLevel(plug.baseStartLevel)
   return plug.isLevelMax ? perfectCount >= count : perfectCount / 2 >= count
 }

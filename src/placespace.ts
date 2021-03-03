@@ -1,14 +1,14 @@
 import {
   expand,
-  shrink,
+  is_max,
   optimize,
   createRange,
   createPlugFromRange,
   createRangeFromPlug,
 } from './space'
-import { place, getCountFromPlug, couldPerfectPlace, getPerfectLevelByCount } from './place'
+import { place, getCountFromPlug } from './place'
 import { Ok, Err } from './result'
-import { MIN, MAX } from './constant'
+import { MIN, MAX, MODE } from './constant'
 
 import type { Result } from './result'
 import type { PlaceIndex } from './place'
@@ -22,7 +22,8 @@ import type { Range } from './space'
  */
 export type Input = {
   inputCount: number
-  inputRange: Range
+  index: number
+  mode: symbol
 }
 
 /**
@@ -42,23 +43,6 @@ export type PlaceResult = PlaceIndex & {
  */
 export type GetElementCount = (range: Range) => Promise<number>
 
-const validateRange = (range: Range): Result<true, string> => {
-  if (range.pos < MIN || range.pos > MAX) {
-    return Err(`The start: ${range.pos} of range is invalid.`)
-  }
-
-  if (range.len < MIN || range.len > MAX) {
-    return Err(`The length: ${range.len} of range is invalid.`)
-  }
-
-  const end = range.pos + range.len
-  if (end < MIN || end > MAX) {
-    return Err(`The end: ${end} of range is invalid.`)
-  }
-
-  return Ok(true)
-}
-
 /**
  * placespace
  *
@@ -69,41 +53,44 @@ export const placespace = async (
   input: Input,
   getElementCount: GetElementCount
 ): Promise<Result<PlaceResult, string>> => {
-  const { inputCount, inputRange } = input
+  let { inputCount, index, mode } = input
 
-  const validateResult = validateRange(inputRange)
-  switch (validateResult.kind) {
-    case 'Err':
-      return Err(validateResult.value)
+  mode = mode === MODE.Pre ? MODE.Pre : MODE.Post
+
+  let start = 0
+  let end = 0
+  if (mode === MODE.Pre) {
+    start = index - inputCount < MIN ? MIN : index - inputCount
+    end = start + inputCount - 1
+  } else {
+    end = index + inputCount > MAX ? MAX : index + inputCount
+    start = end - inputCount + 1
   }
+  const inputRange = createRange(start, end)
 
   let plug = optimize(createPlugFromRange(inputRange))
   const existCount = await getElementCount(createRangeFromPlug(plug))
   let sumCount = inputCount + existCount
 
-  const cpp = couldPerfectPlace(plug, sumCount)
-  if (couldPerfectPlace(plug, sumCount)) {
-    const [level, withCache] = getPerfectLevelByCount(sumCount)
-    plug = shrink(plug, level, withCache)
-  } else {
-    while (sumCount > getCountFromPlug(plug)) {
-      if (sumCount >= MAX) {
-        return Err('There is no enough space.')
-      }
-
-      plug = expand(plug)
-      const existCount = await getElementCount(createRangeFromPlug(plug))
-      sumCount = existCount + inputCount
+  while (sumCount > getCountFromPlug(plug)) {
+    if (sumCount > MAX) {
+      return Err('There is no enough space.')
     }
+    if (is_max(plug)) break
+
+    plug = expand(plug)
+    const existCount = await getElementCount(createRangeFromPlug(plug))
+    sumCount = existCount + inputCount
   }
 
   const range = createRangeFromPlug(plug)
-  const inputStart = await getElementCount(
-    createRange(range.start, inputRange.start + 1)
+  const preCount = await getElementCount(
+    createRange(range.start, inputRange.start)
   )
+  const inputStart = mode === MODE.Pre ? preCount - 1 : preCount
 
   return Ok({
-    ...place(plug, sumCount, inputCount, inputStart, !!cpp),
+    ...place(plug, sumCount, inputCount, inputStart, is_max(plug)),
     range,
   })
 }

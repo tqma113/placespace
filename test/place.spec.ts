@@ -1,6 +1,8 @@
 import {
   place,
   getIndexs,
+  getOverloadLevel,
+  getOverloadIndexs,
   getPerfectIndexs,
   getIndexsFromLevel,
   getBaseIndexs,
@@ -10,6 +12,7 @@ import {
   couldPerfectPlace,
 } from '../src/place'
 import { createRange, createPlugFromRange } from '../src/space'
+import { MAX, MIN } from '../src/constant'
 import { shouldIndexsEqual } from './util'
 
 describe('place', () => {
@@ -301,6 +304,84 @@ describe('place', () => {
     })
   })
 
+  describe('getOverloadLevel', () => {
+    it('overload level is 0', () => {
+      expect(getOverloadLevel(0)).toBe(0)
+      expect(getOverloadLevel(2 ** 22)).toBe(0)
+    })
+
+    it('overload level is 1', () => {
+      expect(getOverloadLevel(2 ** 22 + 1)).toBe(1)
+      expect(getOverloadLevel(2 ** 22 * 2 ** 1)).toBe(1)
+    })
+
+    it('overload level is 2', () => {
+      expect(getOverloadLevel(2 ** 22 * 2 ** 1 + 1)).toBe(2)
+      expect(getOverloadLevel(2 ** 22 * 2 ** 2)).toBe(2)
+    })
+
+    it('overload level is 3', () => {
+      expect(getOverloadLevel(2 ** 22 * 2 ** 2 + 1)).toBe(3)
+      expect(getOverloadLevel(2 ** 22 * 2 ** 3)).toBe(3)
+    })
+
+    it('overload level is 4', () => {
+      expect(getOverloadLevel(2 ** 22 * 2 ** 3 + 1)).toBe(4)
+      expect(getOverloadLevel(2 ** 22 * 2 ** 4)).toBe(4)
+    })
+
+    it('overload level is 5', () => {
+      expect(getOverloadLevel(2 ** 22 * 2 ** 4 + 1)).toBe(5)
+      expect(getOverloadLevel(2 ** 22 * 2 ** 5)).toBe(5)
+    })
+
+    it('overload level is 6', () => {
+      expect(getOverloadLevel(2 ** 22 * 2 ** 5 + 1)).toBe(6)
+      expect(getOverloadLevel(2 ** 22 * 2 ** 6)).toBe(6)
+    })
+
+    it('overload level is 7', () => {
+      expect(getOverloadLevel(2 ** 22 * 2 ** 6 + 1)).toBe(7)
+      expect(getOverloadLevel(2 ** 22 * 2 ** 7)).toBe(7)
+    })
+
+    it('overload level is 8', () => {
+      expect(getOverloadLevel(2 ** 22 * 2 ** 7 + 1)).toBe(8)
+      expect(getOverloadLevel(2 ** 22 * 2 ** 8)).toBe(8)
+    })
+
+    it('overload level is 9', () => {
+      expect(getOverloadLevel(2 ** 22 * 2 ** 8 + 1)).toBe(9)
+      expect(getOverloadLevel(2 ** 22 * 2 ** 9)).toBe(9)
+    })
+
+    it('overload level is 10', () => {
+      expect(getOverloadLevel(2 ** 22 * 2 ** 9 + 1)).toBe(10)
+      expect(getOverloadLevel(2 ** 22 * 2 ** 10)).toBe(10)
+    })
+
+    it('overload level is 11', () => {
+      expect(getOverloadLevel(2 ** 22 * 2 ** 10 + 1)).toBe(11)
+      expect(getOverloadLevel(2 ** 22 * 2 ** 11)).toBe(11)
+    })
+  })
+
+  describe('getOverloadIndexs', () => {
+    it('overload level is 0', () => {
+      const foo = getOverloadIndexs(2 ** 22 * 2 ** 0)
+      const bar = getPerfectIndexs(createPlugFromRange(createRange(MIN, MAX)))
+  
+      shouldIndexsEqual(foo, bar)
+    })
+
+    it('overload level is 1', () => {
+      const foo = getOverloadIndexs(2 ** 22 * 2 ** 1)
+      const bar = getIndexs(createPlugFromRange(createRange(MIN, MAX)))
+
+      shouldIndexsEqual(foo, bar)
+    })
+  })
+
   describe('getPerfectIndexs', () => {
     describe('level is 0', () => {
       it('isLevelMax is true', () => {
@@ -314,16 +395,7 @@ describe('place', () => {
         const plug = createPlugFromRange(createRange(0, 15))
         const foo = getPerfectIndexs(plug)
 
-        shouldIndexsEqual(foo, [
-          0,
-          2,
-          4,
-          6,
-          8,
-          10,
-          12,
-          14,
-        ])
+        shouldIndexsEqual(foo, [0, 2, 4, 6, 8, 10, 12, 14])
       })
     })
 
@@ -390,6 +462,13 @@ describe('place', () => {
           52 + 64,
           54 + 64,
         ])
+      })
+
+      it('max', () => {
+        const bar = getPerfectIndexs(createPlugFromRange(createRange(MIN, MAX)))
+
+        expect(bar[0]).toBe(0)
+        expect(bar[bar.length - 1]).toBe(920350134)
       })
     })
   })
@@ -506,8 +585,8 @@ describe('place', () => {
 
   describe('getBaseIndexs', () => {
     it('simple', () => {
-      const foo = getBaseIndexs(8)
-      shouldIndexsEqual(foo, [0, 2, 4, 6])
+      const foo = getBaseIndexs(2)
+      shouldIndexsEqual(foo, [0, 2, 4])
     })
   })
 
@@ -613,7 +692,7 @@ describe('place', () => {
         expect(getPerfectLevelByCount(33)).toStrictEqual([2, false])
       })
     })
-    
+
     describe('level is 3', () => {
       it('with cache', () => {
         expect(getPerfectLevelByCount(65)).toStrictEqual([3, true])
