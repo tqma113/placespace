@@ -1,5 +1,5 @@
 import { STEP, MAX_LEVEL } from './constant'
-import { getStepFromLevel } from './util'
+import { getStepFromLevel } from './utils'
 
 import type { Plug, Indexs } from './space'
 

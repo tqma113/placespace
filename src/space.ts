@@ -1,5 +1,5 @@
 import { STEP, MAX, MIN } from './constant'
-import { getStepFromLevel } from './util'
+import { getStepFromLevel } from './utils'
 
 /**
  * The Range and Plug are equivalent
