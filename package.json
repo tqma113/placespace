@@ -17,7 +17,9 @@
     "build": "tsc",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
     "format": "prettier --write .",
-    "precommit": "pretty-quick --staged"
+    "precommit": "pretty-quick --staged",
+    "postinstall": "husky install",
+    "prepare": "husky install"
   },
   "husky": {
     "hooks": {

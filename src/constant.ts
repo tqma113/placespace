@@ -13,6 +13,6 @@ export const MAX_LEVEL = 11 // Math.cell(log(STEP, MAX))
 export const MAX_STEP = 2 ** 27
 
 export const MODE = {
-  Pre: Symbol('pre'),
-  Post: Symbol('post'),
+  Pre: Symbol('PRE_INSERT'),
+  Post: Symbol('POST_INSERT'),
 } as const
