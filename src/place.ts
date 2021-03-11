@@ -1,7 +1,7 @@
-import { STEP, MAX_LEVEL } from './constant'
-import { getStepFromLevel } from './utils'
+import { MAX_LEVEL } from './constant'
+import type { Range } from './space'
 
-import type { Plug, Indexs } from './space'
+export type Indexs = number[]
 
 /**
  * the index message of place
@@ -17,14 +17,14 @@ export type PlaceIndex = {
 /**
  * place element corrently
  *
- * @param {Plug} plug
+ * @param {Range} range
  * @param {number} sumCount
  * @param {number} inputCount
  * @param {number} inputStart
  * @param {boolean} perfect
  */
 export const place = (
-  plug: Plug,
+  range: Range,
   sumCount: number,
   inputCount: number,
   inputStart: number,

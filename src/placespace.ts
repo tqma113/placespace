@@ -1,13 +1,7 @@
-import {
-  expand,
-  is_max,
-  optimize,
-  createPlugFromIndex,
-  createRangeFromPlug,
-} from './space'
+import { expand, optimize, createRange } from './space'
 import { place, getCountFromPlug } from './place'
 import { Ok, Err } from './result'
-import { MAX, MODE } from './constant'
+import { MAX, MIN, MODE } from './constant'
 
 import type { Result } from './result'
 import type { PlaceIndex } from './place'
@@ -54,24 +48,34 @@ export const placespace = async (
 ): Promise<Result<PlaceResult, string>> => {
   let { inputCount, index, mode } = input
   mode = mode === MODE.Pre ? MODE.Pre : MODE.Post
-  const startIndex = mode === MODE.Pre ? index : index >= MAX ? MAX : index + 1
 
-  let plug = optimize(createPlugFromIndex(startIndex))
-  const existCount = await getElementCount(plug.startIndex, plug.endIndex)
+  let startIndex = 0
+  let endIndex = 0
+  if (mode === MODE.Pre) {
+    endIndex = index > MIN ? index - 1 : MIN
+    startIndex =
+      endIndex - inputCount + 1 >= MIN ? endIndex - inputCount + 1 : MIN
+  } else {
+    startIndex = index < MAX ? index + 1 : MAX
+    endIndex =
+      startIndex + inputCount - 1 <= MAX ? startIndex + inputCount - 1 : MAX
+  }
+
+  let range = optimize(createRange(startIndex, endIndex))
+  const existCount = await getElementCount(range.start, range.end)
   let sumCount = inputCount + existCount
 
-  while (sumCount > getCountFromPlug(plug)) {
+  while (sumCount > range.len) {
     if (sumCount > MAX) {
       return Err('There is no enough space.')
     }
-    if (is_max(plug)) break
+    if (range.len > MAX) break
 
-    plug = expand(plug)
-    const existCount = await getElementCount(plug.startIndex, plug.endIndex)
+    range = expand(range)
+    const existCount = await getElementCount(range.start, range.end)
     sumCount = existCount + inputCount
   }
 
-  const range = createRangeFromPlug(plug)
   const preCount = await getElementCount(range.start, index - 1)
   const inputStart = mode === MODE.Pre ? preCount : preCount + 1
 
