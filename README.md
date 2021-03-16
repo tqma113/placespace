@@ -1,5 +1,10 @@
 # placespace
 
+[![NPM](https://img.shields.io/npm/v/placespace.svg)](https://www.npmjs.com/package/placespace)
+[![Documentation](https://img.shields.io/badge/documentation-yes-brightgreen.svg)](https://github.com/tqma113/placespace#readme)
+[![Action Status](https://github.com/tqma113/placespace/workflows/PlaceSpace/badge.svg)](https://github.com/tqma113/placespace/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/tqma/placespace/blob/master/LICENSE)
+
 Multi-level spatial scheduling algorithm.
 
 ## Scene
